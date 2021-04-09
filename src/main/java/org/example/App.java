@@ -1,22 +1,26 @@
 package org.example;
 
-import com.github.javaparser.*;
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.*;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.example.FileParserUtils.getAllUserMethodList;
+import static org.example.FileParserUtils.retrieveCompilationUnit;
+import static org.example.Singleton.getFile;
 
 public class App {
 
@@ -26,14 +30,14 @@ public class App {
     public static final String file_path = userDirectory + "src/main/java/org/example/TestClass.java";
     // La soluzione sottostante ha il problema che il path assoluto debba essere necessariamente il mio, quindi il programma non può funzionare se eseguito in un altro pc
     // La soluzione sopra sistema proprio questo problema.
- //   public static final String file_path = "C:/Users/Marco/Desktop/Tesi triennale/Codice/src/main/java/org/example/TestClass.java";
+    //   public static final String file_path = "C:/Users/Marco/Desktop/Tesi triennale/Codice/src/main/java/org/example/TestClass.java";
     public static final File file = new File(file_path);
 
     // Restituisce l'indice del parametro passato in input a questo metodo dalla lista dei parametri estrapolata dalla firma del metodo.
     // Restituisce -1 nel caso in cui il parametro passato in input non sia effettivamente un parametro della firma del metodo che si sta analizzando.
     public static int getIndexParameter(MethodDeclaration methodDeclaration, String variable) {
-        for(int i = 0; i < methodDeclaration.getParameters().size(); i++) {
-            if(methodDeclaration.getParameter(i).getNameAsString().equals(variable))    // confronto tra il nome del parametro i-esimo e quello passato in input
+        for (int i = 0; i < methodDeclaration.getParameters().size(); i++) {
+            if (methodDeclaration.getParameter(i).getNameAsString().equals(variable))    // confronto tra il nome del parametro i-esimo e quello passato in input
                 return i;   // ritorna l'indice del parametro della lista se il suo nome corrisponde a quello del parametro passato in input
         }
         return -1;
@@ -44,8 +48,8 @@ public class App {
         VariableDeclarator ris = null;
         List<VariableDeclarator> listVariable = methodDeclaration.findAll(VariableDeclarator.class); // Estrapolo tutte le dichiarazioni di variabili dal metodo per fare i confronti
 
-        for(VariableDeclarator var : listVariable) {
-            if(var.getNameAsString().equals(variable)) {
+        for (VariableDeclarator var : listVariable) {
+            if (var.getNameAsString().equals(variable)) {
                 ris = var;  // settaggio della variabile da restituire nel caso in cui ci sia una corrispondenza di nomi tra una variabile della lista e quella passata in input
             }
         }
@@ -65,7 +69,7 @@ public class App {
         String nameVec = element.asArrayAccessExpr().getName().toString();
 
         // Vengono passati i nomi dei due array per fare una ricerca (per nome) della loro dichiarazione (che dovrà essere uguale) all'interno del metodo.
-        if(!(compareMethodsElements(userMethod, recursive_method, nameVecUser, nameVec))) {
+        if (!(compareMethodsElements(userMethod, recursive_method, nameVecUser, nameVec))) {
             System.out.println("Error to two NameExpr!");
             return false;
         }
@@ -75,7 +79,7 @@ public class App {
         String vecIndex = element.asArrayAccessExpr().getIndex().toString();
 
         // Passaggio degli indici (che possono essere una singola variabile o un'intera espressione formata da valori e altre variabili) alla chiamata sottostante
-        if(!compareElementContent(userMethod, recursive_method, userVecIndex, vecIndex)) {
+        if (!compareElementContent(userMethod, recursive_method, userVecIndex, vecIndex)) {
             System.out.println("Errore negli indici passati agli array!");
             ris = false;
         }
@@ -93,7 +97,7 @@ public class App {
         String nameUserElement = userElement.asFieldAccessExpr().getScope().toString();
         String nameElement = element.asFieldAccessExpr().getScope().toString();
 
-        if(!compareMethodsElements(userMethod, recursive_method, nameUserElement, nameElement)) {
+        if (!compareMethodsElements(userMethod, recursive_method, nameUserElement, nameElement)) {
             System.out.println("Elementi di FieldAccessExpr diversi!");
             return false;
         }
@@ -102,7 +106,7 @@ public class App {
         String nameUserField = userElement.asFieldAccessExpr().getNameAsString();
         String nameField = element.asFieldAccessExpr().getNameAsString();
 
-        if(!compareMethodsElements(userMethod, recursive_method, nameUserField, nameField)) {
+        if (!compareMethodsElements(userMethod, recursive_method, nameUserField, nameField)) {
             System.out.println("FieldAccessExpr diversi!");
             ris = false;
         }
@@ -121,18 +125,18 @@ public class App {
         Expression element = StaticJavaParser.parseExpression(variableValue);
 
         // Se ciò che viene prelevato dall'utente è di tipo diverso da quello che viene preso dal mio metodo corrente, ritorna false ed esce dal metodo
-        if(userElement.getMetaModel() != element.getMetaModel()) {
+        if (userElement.getMetaModel() != element.getMetaModel()) {
             System.out.println("Error MetaModel!");
             return false;
         }
 
         // Se entrambi gli elementi passati in input in questo metodo non sono espressioni binarie (quindi non contengono somma, sottrazione, ecc..., oppure operatori come il minore, maggiore, uguale, e via dicendo)
-        if(!(userElement.isBinaryExpr()) && !(element.isBinaryExpr())) {
+        if (!(userElement.isBinaryExpr()) && !(element.isBinaryExpr())) {
             boolean isValue = true;
 
             // se entrambi contengono solo un nome (di una variabile o di un parametro della firma del metodo)
-            if(userElement.isNameExpr() && element.isNameExpr()) {
-                if(!(compareMethodsElements(userMethod, recursive_method, userElement.toString(), element.toString()))) {
+            if (userElement.isNameExpr() && element.isNameExpr()) {
+                if (!(compareMethodsElements(userMethod, recursive_method, userElement.toString(), element.toString()))) {
                     System.out.println("Error to two NameExpr!");
                     return false;
                 }
@@ -140,45 +144,45 @@ public class App {
             }
 
             // se entrambi sono array
-            if(userElement.isArrayAccessExpr() && element.isArrayAccessExpr()) {
-                if(!verifyArrayContent(userMethod, recursive_method, userElement, element)) return false;
+            if (userElement.isArrayAccessExpr() && element.isArrayAccessExpr()) {
+                if (!verifyArrayContent(userMethod, recursive_method, userElement, element)) return false;
                 isValue = false;
             }
 
             // se entrambi sono della forma: "elemento.campo" (tipo: array.length)
-            if(userElement.isFieldAccessExpr() && element.isFieldAccessExpr()) {
+            if (userElement.isFieldAccessExpr() && element.isFieldAccessExpr()) {
                 // controllo delle dichiarazioni dei due array e degli indici passati
-                if(!verifyFieldAccessContent(userMethod, recursive_method, userElement, element))
+                if (!verifyFieldAccessContent(userMethod, recursive_method, userElement, element))
                     return false;
                 isValue = false;
             }
 
             // se entrambi contengono chiamate a metodi
-            if(userElement.isMethodCallExpr() && element.isMethodCallExpr()) {
+            if (userElement.isMethodCallExpr() && element.isMethodCallExpr()) {
 
                 // Controllo importante per verificare se prima della chiamata al metodo esiste un elemento che invoca o no,
                 // tipo: list.size(), dove list è il nome di una lista e size() è la chiamata al metodo che permette di conoscere la dimensione della lista.
                 // Restituisce false nel caso in cui uno dei due abbia un elemento che invoca il metodo e l'altro no.
-                if(userElement.asMethodCallExpr().getScope().isPresent() != element.asMethodCallExpr().getScope().isPresent()) {
+                if (userElement.asMethodCallExpr().getScope().isPresent() != element.asMethodCallExpr().getScope().isPresent()) {
                     System.out.println("Scope non presente in entrambi i MethodCall!");
                     return false;
                 }
 
                 // Nel caso in cui entrambi abbiano un elemento che invoca il metodo
-                if(userElement.asMethodCallExpr().getScope().isPresent() && element.asMethodCallExpr().getScope().isPresent()) {
+                if (userElement.asMethodCallExpr().getScope().isPresent() && element.asMethodCallExpr().getScope().isPresent()) {
                     // Estrapolazione degli elementi che invocano i metodo
                     String userScope = userElement.asMethodCallExpr().getScope().get().toString();
                     String scope = element.asMethodCallExpr().getScope().get().toString();
 
                     // Passaggio di questi due elementi al metodo per confrontarli
-                    if(!compareElementContent(userMethod, recursive_method, userScope, scope)) {
+                    if (!compareElementContent(userMethod, recursive_method, userScope, scope)) {
                         System.out.println("Scope diversi nel confronto tra MethodCallExpr!");
                         return false;
                     }
                 }
 
                 // Controllo del nome dei due metodi richiamati, che deve essere lo stesso, altrimenti restituisce false.
-                if(!(userElement.asMethodCallExpr().getNameAsString().equals(element.asMethodCallExpr().getNameAsString()))) {
+                if (!(userElement.asMethodCallExpr().getNameAsString().equals(element.asMethodCallExpr().getNameAsString()))) {
                     System.out.println("Nomi di metodi diversi nelle MethodCallExpr!");
                     return false;
                 }
@@ -188,21 +192,21 @@ public class App {
                 int numArgs = element.asMethodCallExpr().getArguments().size();
 
                 // Se il numero è diverso si ritorna false e si esce
-                if(userNumArgs != numArgs) {
+                if (userNumArgs != numArgs) {
                     System.out.println("Numero diverso di argomenti nelle MethodCallExpr!");
                     return false;
                 }
 
                 // In questo punto è stato appurato che il numero degli argomenti è lo stesso in entrambi i metodi.
                 // Adesso bisogna capire se entrambi non contengono proprio argomenti (e in quel caso non ci sarebbe niente da confrontare) oppure sì.
-                if(userNumArgs != 0) {
+                if (userNumArgs != 0) {
                     String userArg;
                     String arg;
                     // Ciclo che permette d'iterare la lista di argomenti in entrambi i metodi e confrontare argomento per argomento
-                    for(int i = 0; i < userNumArgs; i++) {
+                    for (int i = 0; i < userNumArgs; i++) {
                         userArg = userElement.asMethodCallExpr().getArgument(i).toString();
                         arg = element.asMethodCallExpr().getArgument(i).toString();
-                        if(!compareElementContent(userMethod, recursive_method, userArg, arg)) {
+                        if (!compareElementContent(userMethod, recursive_method, userArg, arg)) {
                             System.out.println("Argomenti diversi tra MethodCallExpr!");
                             return false;
                         }
@@ -212,17 +216,16 @@ public class App {
             }
 
             // La variabile "isValue" rimane true, a questo punto, se non corrisponde a nessuno dei tipi precedenti
-            if(isValue) {
+            if (isValue) {
                 // Non essendo nessuno dei tipi precedenti saranno sicuramente due valori, quindi confronta direttamente i valori e resituisce false nel caso in cui siano diversi
                 if (!(userVariableValue.equals(variableValue))) {
                     System.out.println("Compare value variable!");
                     ris = false;
                 } else return true;
             }
-        }
-        else {
+        } else {
             // Siamo nel caso nel quale entrambi sono espressioni, quindi innanzitutto si confrontano gli operatori utilizzati
-            if(userElement.asBinaryExpr().getOperator() != element.asBinaryExpr().getOperator()) {
+            if (userElement.asBinaryExpr().getOperator() != element.asBinaryExpr().getOperator()) {
                 System.out.println("Different operator");
                 return false;
             }
@@ -234,11 +237,11 @@ public class App {
             String rightExpression = element.asBinaryExpr().getRight().toString();
 
             // Qui si controllano gli elementi passati alla sinistra dell'operatore
-            if(!compareElementContent(userMethod, recursive_method, leftUserExpression, leftExpression)) {
+            if (!compareElementContent(userMethod, recursive_method, leftUserExpression, leftExpression)) {
                 ris = false;
             }
             // Qui gli elementi passati alla destra dell'operatore
-            if(!compareElementContent(userMethod, recursive_method, rightUserExpression, rightExpression)) {
+            if (!compareElementContent(userMethod, recursive_method, rightUserExpression, rightExpression)) {
                 ris = false;
             }
         }
@@ -251,7 +254,7 @@ public class App {
         boolean result = true;
 
         // Verifica che il tipo delle due variabili sia lo stesso
-        if(!userVariable.getType().toString().equals(variable.getType().toString())) {
+        if (!userVariable.getType().toString().equals(variable.getType().toString())) {
             System.out.println("Variabili di tipo differente!");
             return false;
         }
@@ -261,7 +264,7 @@ public class App {
         String variableValue = variable.toString().split("=")[1].trim();
 
         // Confronto contenuto variabili
-        if(!compareElementContent(userMethod, recursive_method, userVariableValue, variableValue))
+        if (!compareElementContent(userMethod, recursive_method, userVariableValue, variableValue))
             result = false;
 
         return result;
@@ -279,18 +282,18 @@ public class App {
         // Se gli elementi sono parametri della firma del metodo ma diversi, cioè uno è per esempio il primo parametro della firma e l'altro il secondo, ritorna false
         // Se uno è un parametro e l'altro no ritorna pure false
         // Se uno è una variabile locale del metodo e l'altro no ritorna false
-        if(index != userIndex || (variable == null && userVariable != null) || (variable != null && userVariable == null)) {
+        if (index != userIndex || (variable == null && userVariable != null) || (variable != null && userVariable == null)) {
             System.out.println("Error getIndex or not both variable!");
             return false;
         }
         // Se gli elementi non sono nè parametri nè variabili si confrontano direttamente poichè sono valori di qualche tipo
-        if((index == -1 && userIndex == -1) && (variable == null && userVariable == null) && (!(userElement.equals(element)))) {
+        if ((index == -1 && userIndex == -1) && (variable == null && userVariable == null) && (!(userElement.equals(element)))) {
             System.out.println("Error recognize nature both variable");
             return false;
         }
         // Se gli elementi sono entrambi variabili locali si richiama un altro metodo che ne confronta il tipo e il contenuto
-        if(variable != null && userVariable != null) {
-            if(!verifyVariableContent(userMethod, recursive_method, userVariable, variable)) {
+        if (variable != null && userVariable != null) {
+            if (!verifyVariableContent(userMethod, recursive_method, userVariable, variable)) {
                 System.out.println("Error different variable content!");
                 result = false;
             }
@@ -313,18 +316,17 @@ public class App {
         int countOR = StringUtils.countMatches(condition, "||");
 
         // Se il numero di AND o il numero di OR non corrisponde, ritorna false
-        if((userCountAND != countAND) || (userCountOR != countOR))
+        if ((userCountAND != countAND) || (userCountOR != countOR))
             return false;
 
         // Se il numero di AND e OR corrisponde ed è diverso da 0 si splitta l'intera stringa, in modo tale da inserire tutte le condizioni all'interno delle liste
-        if(userCountAND != 0 || userCountOR != 0) {
+        if (userCountAND != 0 || userCountOR != 0) {
             int numLogicalOperator = userCountAND + (userCountOR * 2) + 1;
             String[] splitUserCondition = userCondition.split("&&|\\|", numLogicalOperator);
             String[] splitCondition = condition.split("&&|\\|", numLogicalOperator);
             totalUserCondition = Arrays.asList(Arrays.stream(splitUserCondition).filter(x -> StringUtils.isNotBlank(x)).toArray(String[]::new));
             totalCondition = Arrays.asList(Arrays.stream(splitCondition).filter(x -> StringUtils.isNotBlank(x)).toArray(String[]::new));
-        }
-        else {
+        } else {
             // Se non ci sono operatori logici in entrambe le stringhe significa che ci sarà un'unica condizione, quindi s'inserisce semplicemente quella nelle liste
             totalUserCondition.add(userCondition);
             totalCondition.add(condition);
@@ -333,12 +335,12 @@ public class App {
         boolean checkCondition = true;
 
         // Ciclo che serve ad iterare e controllare ogni singola condizione delle liste
-        for(int index = 0; index < totalUserCondition.size(); index++) {
+        for (int index = 0; index < totalUserCondition.size(); index++) {
 
             String userConditionExpr = totalUserCondition.get(index);
             String conditionExpr = totalCondition.get(index);
 
-            if(!compareElementContent(userMethod, recursive_method, userConditionExpr, conditionExpr)) {
+            if (!compareElementContent(userMethod, recursive_method, userConditionExpr, conditionExpr)) {
                 System.out.println("Le condizioni correnti " + userConditionExpr + " e " + conditionExpr + " sono differenti!");
                 checkCondition = false;
                 break;
@@ -347,80 +349,6 @@ public class App {
         return checkCondition;
     }
 
-    // Restituisce tutti e soli i metodi ricorsivi che vengono trovati all'interno del corpo del metodo passato in input
-    public static MethodCallExpr getRecursiveMethodCall(MethodDeclaration methodDeclaration) {
-        MethodCallExpr result = null;
-        // Estrapola tutte le chiamate a metodi che riesce a trovare nel corpo del metodo
-        List<MethodCallExpr> listMethodCall = methodDeclaration.findAll(MethodCallExpr.class);
-        // Ciclo che itera per ogni chiamata a metodo trovato
-        for(MethodCallExpr method : listMethodCall) {
-            NameExpr nameExpr = method.getNameAsExpression();   // nome della chiamata a metodo corrente
-            NodeList arguments = method.getArguments(); // numero di argomenti della chiamata a metodo corrente
-
-            // Verifica che il nome della chiamata a metodo trovato sia uguale a quello della firma del metodo.
-            // Inoltre controlla anche che il numero di parametri passati ai metodi sia uguale
-            if(methodDeclaration.getNameAsExpression().equals(nameExpr) &&
-               methodDeclaration.getParameters().size() == arguments.size()) {
-
-                List parametersType = methodDeclaration.getSignature().getParameterTypes(); // Lista dei tipi dei parametri della firma del metodo
-                List argumentsType = new ArrayList();
-
-                // Ciclo che itera per ogni argomento trovato nella chiamata a metodo
-                arguments.forEach(arg -> {
-                    String argument = arg.toString();
-                    Expression element = StaticJavaParser.parseExpression(argument);
-
-                    if(element.isBinaryExpr())
-                        argument = element.asBinaryExpr().getLeft().toString().trim();
-
-                    List<VariableDeclarationExpr> methodVariables = methodDeclaration.getBody().get().findAll(VariableDeclarationExpr.class);
-
-                    // Estrapolazione del tipo dell'argomento passato alla chiamata del metodo, cercando la dichiarazione della variabile (se esiste) avente lo stesso nome dell'argomento.
-                    // Se il nome dell'argomento non si trova tra le variabili locali, apparterrà sicuramente ad uno dei parametri passati nella firma del metodo
-                    for(VariableDeclarationExpr variable : methodVariables) {
-                        if(variable.getVariable(0).getNameAsString().equals(argument)) {
-                            argumentsType.add(variable.getVariable(0).getType());
-                        }
-                    }
-
-                    // Verifica se l'argomento corrente sia già stato riconosciuto come variabile oppure no.
-                    // Nel primo caso il controllo sottostante darà esito negativo e non verrà controllato
-                    // se effettivamente l'argomento corrente possa essere un parametro perché già è stato
-                    // riconosciuto come variabile e preso il suo tipo. Nel secondo caso bisogna andare a controllare
-                    // se l'argomento corrente (non essendo una variabile locale) sia un parametro della firma del metodo
-                    // e in caso positivo prelevare il suo tipo.
-                    // Solo nel secondo caso si entra nella condizione e si verifica il corpo.
-                    if(argumentsType.size() == arguments.indexOf(arg)) {
-                        for(int i = 0; i < methodDeclaration.getParameters().size(); i++) {
-                            if (methodDeclaration.getParameter(i).getNameAsString().equals(argument)) {
-                                argumentsType.add(parametersType.get(i));
-                            }
-                        }
-                    }
-                });
-
-                boolean sameParameters = true;
-
-                // Verifica se i tipi ricavati dagli argomenti della chiamata sono uguali a quelli passati nella firma del metodo (viene considerato anche l'ordine con il quale sono passati)
-                for(int i = 0; i < parametersType.size(); i++) {
-                    if(!(parametersType.get(i).toString().equals(argumentsType.get(i).toString()))) {
-                        sameParameters = false;
-                        break;
-                    }
-                }
-
-                // Se tutti i controlli hanno dato esito significa che tutti i tipi degli argomenti passati
-                // alla chiamata del metodo sono corretti e ordinati allo stesso modo dei parametri passati
-                // nella firma del metodo, quindi il metodo è effettivamente ricorsivo.
-                if(sameParameters) {
-                    result = method;
-                    break;
-                }
-            }
-        }
-
-        return result;
-    }
 
     // Fa in modo di sostituire alla versione iterativa (da restituire all'utente) tutti i nomi dei parametri formali
     // in modo tale da mantenere i nomi scelti dall'utente nella sua versione ricorsiva. Chiaramente i nomi vengono sostituiti
@@ -436,11 +364,11 @@ public class App {
 
         // Ciclo che permette di prelevare ogni singolo parametro dalla firma del metodo iterativo e sostituirlo con il
         // nome del parametro scelto dall'utente nella sua versione ricorsiva.
-        for(int i = 0; i < iterative_method.getParameters().size(); i++) {
+        for (int i = 0; i < iterative_method.getParameters().size(); i++) {
             iterativeParameter = iterative_method.getParameter(i).getType().toString();
             userParameter = userMethod.getParameter(i).getType().toString();
 
-            if(iterativeParameter.equals(userParameter)) {
+            if (iterativeParameter.equals(userParameter)) {
                 bodyMethod = bodyMethod.replaceAll("\\b" + iterative_method.getParameter(i).getNameAsString() + "\\b", userMethod.getParameter(i).getNameAsString());
             }
         }
@@ -450,24 +378,12 @@ public class App {
         return result;
     }
 
-    public static void main( String[] args ) throws IOException {
-
+    public static void main(String[] args) throws IOException {
         /* Ristrutturare completamente il codice utilizzando una programmazione ad oggetti, quindi inserendo delle classi e facendole collaborare tra loro.
-        *  Come funzionalità e logica va più che bene, quindi non bisogna riscrivere i metodi considerando la logica. Al massimo fare ancora un po' di refactoring, così da
-        *  semplificare i metodi (renderli più piccoli e specifici) ed evitare controlli ripetuti (dove è possibile farlo). 
-        */
-
-        CompilationUnit cu = StaticJavaParser.parse(file);  // Analisi e salvataggio del contenuto del file
-        List<MethodDeclaration> listUserRecursiveMethods = new ArrayList();
-
-        // Estrapolazione di tutti i metodi contenuti nella classe passata all'interno del file
-        // e salvataggio di tutti e soli i metodi ricorsivi all'interno di una lista
-        cu.findAll(MethodDeclaration.class)
-            .forEach(f ->  {
-                if(getRecursiveMethodCall(f) != null) {
-                    listUserRecursiveMethods.add(f);
-                }
-            });
+         *  Come funzionalità e logica va più che bene, quindi non bisogna riscrivere i metodi considerando la logica. Al massimo fare ancora un po' di refactoring, così da
+         *  semplificare i metodi (renderli più piccoli e specifici) ed evitare controlli ripetuti (dove è possibile farlo).
+         */
+        List<MethodDeclaration> listUserRecursiveMethods = FileParserUtils.getRecursiveUserMethodList();
 
         // Directory che contiene le versioni standard di alcuni algoritmi ricorsivi e le corrispondenti versioni iterative
         File directoryPath = new File(file.getParent() + "/Algoritmi");
@@ -479,10 +395,10 @@ public class App {
 
         // Ciclo che itera tutti i metodi ricorsivi trovati nel file dell'utente e restituisce la versione iterativa
         // di tutti e soli ricorsivi dei quali si trova una corrispondenza con le versioni ricorsive disponibili nella directory "Algoritmi".
-        for(MethodDeclaration userMethod : listUserRecursiveMethods) {
+        for (MethodDeclaration userMethod : listUserRecursiveMethods) {
 
             // Ciclo che itera ogni directory, contenente l'algoritmo ricorsivo da confrontare con quello dell'utente
-            for(File file : algorithmList) {
+            for (File file : algorithmList) {
                 List<File> files = new ArrayList(Arrays.asList(file.listFiles()));  // lista dei file all'interno della directory contenente l'algoritmo corrente
                 File recursivePath = files.stream().filter(item -> item.getName().contains("Recursive")).findAny().get();   // Prelevamento file contenente solo la versione ricorsiva dell'algoritmo da andare a confrontare
 
@@ -493,8 +409,8 @@ public class App {
                 // rigettare un metodo già in partenza qualora non dovesse risultare con la stessa firma, evitando così di controllare l'intero corpo inutilmente.
                 // Controllo dell'intestazione dei metodi
                 if (userMethod.getParameters().size() == recursive_method.getParameters().size() &&
-                    userMethod.getSignature().getParameterTypes().equals(recursive_method.getSignature().getParameterTypes()) &&
-                    userMethod.getType().equals(recursive_method.getType())) {
+                        userMethod.getSignature().getParameterTypes().equals(recursive_method.getSignature().getParameterTypes()) &&
+                        userMethod.getType().equals(recursive_method.getType())) {
 
                     // Liste degli strumenti da andare ad analizzare nei metodi disponibili nella directory "Algoritmi".
                     List<IfStmt> ifListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(IfStmt.class);
@@ -516,12 +432,12 @@ public class App {
 
                     // Verifica che in entrambi i metodi sia utilizzata la stessa quantità di ogni strumento
                     if (ifListUserMethod.size() != ifListMethod.size() ||
-                        forListUserMethod.size() != forListMethod.size() ||
-                        forEachListUserMethod.size() != forEachListMethod.size() ||
-                        whileListUserMethod.size() != whileListMethod.size() ||
-                        switchListUserMethod.size() != switchListMethod.size() ||
-                        breakListUserMethod.size() != breakListMethod.size() ||
-                        continueListUserMethod.size() != continueListMethod.size()) {
+                            forListUserMethod.size() != forListMethod.size() ||
+                            forEachListUserMethod.size() != forEachListMethod.size() ||
+                            whileListUserMethod.size() != whileListMethod.size() ||
+                            switchListUserMethod.size() != switchListMethod.size() ||
+                            breakListUserMethod.size() != breakListMethod.size() ||
+                            continueListUserMethod.size() != continueListMethod.size()) {
                         System.out.println("Numero di costrutti iterativi o condizionali diverso!");
                         continue;
                     }
@@ -561,19 +477,19 @@ public class App {
 
                             // se il for è privo d'inizializzazione, condizione e aggiornamento, non si ha nulla da controllare e si passa al prossimo for
                             if ((forListUserMethod.get(i).getInitialization().isEmpty() && forListMethod.get(i).getInitialization().isEmpty()) &&
-                                (!(forListUserMethod.get(i).getCompare().isPresent()) && !(forListMethod.get(i).getCompare().isPresent())) &&
-                                (forListUserMethod.get(i).getUpdate().isEmpty()) && forListMethod.get(i).getUpdate().isEmpty()) {
+                                    (!(forListUserMethod.get(i).getCompare().isPresent()) && !(forListMethod.get(i).getCompare().isPresent())) &&
+                                    (forListUserMethod.get(i).getUpdate().isEmpty()) && forListMethod.get(i).getUpdate().isEmpty()) {
                                 continue;
                             }
 
                             // Se uno dei due for ha una sezione non vuota e l'altro ha la stessa sezione vuota, allora i for saranno diversi, quindi si esce dal ciclo
                             // per evidenziare una differenza nel confronto del corpo dei metodi
                             if (forListUserMethod.get(i).getInitialization().isEmpty() && forListMethod.get(i).getInitialization().isNonEmpty() ||
-                                forListUserMethod.get(i).getInitialization().isNonEmpty() && forListMethod.get(i).getInitialization().isEmpty() ||
-                                forListUserMethod.get(i).getCompare().isPresent() && (!(forListMethod.get(i).getCompare().isPresent())) ||
-                                (!(forListUserMethod.get(i).getCompare().isPresent())) && forListMethod.get(i).getCompare().isPresent() ||
-                                forListUserMethod.get(i).getUpdate().isEmpty() && forListMethod.get(i).getUpdate().isNonEmpty() ||
-                                forListUserMethod.get(i).getUpdate().isNonEmpty() && forListMethod.get(i).getUpdate().isEmpty())
+                                    forListUserMethod.get(i).getInitialization().isNonEmpty() && forListMethod.get(i).getInitialization().isEmpty() ||
+                                    forListUserMethod.get(i).getCompare().isPresent() && (!(forListMethod.get(i).getCompare().isPresent())) ||
+                                    (!(forListUserMethod.get(i).getCompare().isPresent())) && forListMethod.get(i).getCompare().isPresent() ||
+                                    forListUserMethod.get(i).getUpdate().isEmpty() && forListMethod.get(i).getUpdate().isNonEmpty() ||
+                                    forListUserMethod.get(i).getUpdate().isNonEmpty() && forListMethod.get(i).getUpdate().isEmpty())
                                 break;
 
                             // Se la sezione relativa alla condizione è presente in entrambi i for, si analizzano gli elementi interni
@@ -692,14 +608,12 @@ public class App {
                                             result = false;
                                             break;
                                         }
-                                    }
-                                    else {
+                                    } else {
                                         // Caso nel quale il tipo di aggiornamento è differente. Anche qui viene confrontato come prima cosa l'operatore
                                         if (userExpression.asAssignExpr().getOperator() != expression.asAssignExpr().getOperator()) {
                                             result = false;
                                             break;
-                                        }
-                                        else {
+                                        } else {
                                             String userPreAssignElement = userExpression.asAssignExpr().getTarget().toString().trim();
                                             String preAssignElement = expression.asAssignExpr().getTarget().toString().trim();
 
@@ -733,8 +647,7 @@ public class App {
                                                     result = false;
                                                     break;
                                                 }
-                                            }
-                                            else {
+                                            } else {
                                                 if (userExpression.asAssignExpr().getValue().isNameExpr()) {
                                                     String userElement = userExpression.asAssignExpr().getValue().toString().trim();
                                                     String element = expression.asAssignExpr().getValue().toString().trim();
@@ -743,8 +656,7 @@ public class App {
                                                         result = false;
                                                         break;
                                                     }
-                                                }
-                                                else {
+                                                } else {
                                                     if (!userExpression.asAssignExpr().getValue().toString().equals(expression.asAssignExpr().getValue().toString())) {
                                                         result = false;
                                                         break;
@@ -860,7 +772,7 @@ public class App {
                             }
 
                             if (switchListUserMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty() && switchListMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isNonEmpty() ||
-                                switchListUserMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isNonEmpty() && switchListMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty()) {
+                                    switchListUserMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isNonEmpty() && switchListMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty()) {
                                 System.out.println("Uno switch contiene come ultimo caso default, l'altro no!");
                                 break;
                             }
@@ -868,7 +780,7 @@ public class App {
                             // Se entrambi gli switch contengono default, viene decrementato il numero di casi da esaminare,
                             // poichè "default" non viene considerato tra i casi dello switch da JavaParser
                             if (switchListUserMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty() &&
-                                switchListMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty()) {
+                                    switchListMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty()) {
                                 userCountSwitchCase -= 1;
                             }
 
@@ -911,8 +823,8 @@ public class App {
                     // Se tutti i controlli precedenti sono andati a buon fine, verrà eseguito il codice sottostante, che effettuerà
                     // un ulteriore controllo nel corpo dei metodi.
                     // Estrapolazione delle due chiamate ricorsive dai metodi messi a confronto
-                    MethodCallExpr userMethodCall = getRecursiveMethodCall(userMethod);
-                    MethodCallExpr methodCall = getRecursiveMethodCall(recursive_method);
+                    MethodCallExpr userMethodCall = FileParserUtils.getRecursiveMethodCall(userMethod);
+                    MethodCallExpr methodCall = FileParserUtils.getRecursiveMethodCall(recursive_method);
 
                     // Estrapolazione degli argomenti da confrontare nelle due chiamate ricorsive
                     NodeList userCallArguments = userMethodCall.getArguments();
@@ -934,7 +846,7 @@ public class App {
                     }
 
                     // Se uno dei confronti tra argomenti dà esito negativo, si ignora tutto il codice sottostante e si passa al prossimo metodo da confrontare
-                    if(!sameParameters) {
+                    if (!sameParameters) {
                         continue;
                     }
 
@@ -952,9 +864,9 @@ public class App {
                     MethodDeclaration newIterativeMethod = replaceMethodParametersName(iterative_method, userMethod);
 
                     // Ciclo che itera per ogni metodo trovato all'interno della classe del file utente
-                    for(MethodDeclaration methodDeclaration : cu.findAll(MethodDeclaration.class)) {
+                    for (MethodDeclaration methodDeclaration : getAllUserMethodList()) {
                         // Verifica che la dichiarazione del metodo corrente sia uguale alla dichiarazione del metodo da sostituire.
-                        if(methodDeclaration.getDeclarationAsString().equals(userMethod.getDeclarationAsString())) {
+                        if (methodDeclaration.getDeclarationAsString().equals(userMethod.getDeclarationAsString())) {
                             // Una volta trovato il metodo da sostituire, vengono inseriti tutti i parametri formali e il corpo del metodo iterativo,
                             // in modo tale da completare la sostituzione del metodo utente.
                             methodDeclaration.setParameters(newIterativeMethod.getParameters());
@@ -963,15 +875,13 @@ public class App {
                         }
                     }
                     break;  // Consente di non controllare altri algoritmi disponibili nella directory "Algoritmi", poiché è già stato trovato
-                            // quello corrispondente al metodo dell'utente ed è avvenuta con successo la sostituzione del metodo ricorsivo (dell'utente).
+                    // quello corrispondente al metodo dell'utente ed è avvenuta con successo la sostituzione del metodo ricorsivo (dell'utente).
                 }
             }
         }
 
         // Aggiornamento del vecchio contenuto del file utente con quello nuovo.
-        FileWriter fooWriter = new FileWriter(file, false);
-        fooWriter.write(cu.toString());
-        fooWriter.close();
+        FileParserUtils.updateUserFile();
 
         // TESI CONCLUSA!!
     }
