@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.example.AnalysisMethod.getRecursiveMethodCall;
 import static org.example.FileParserUtils.getAllUserMethodList;
 import static org.example.FileParserUtils.retrieveCompilationUnit;
 import static org.example.Singleton.getFile;
@@ -823,8 +824,8 @@ public class App {
                     // Se tutti i controlli precedenti sono andati a buon fine, verrà eseguito il codice sottostante, che effettuerà
                     // un ulteriore controllo nel corpo dei metodi.
                     // Estrapolazione delle due chiamate ricorsive dai metodi messi a confronto
-                    MethodCallExpr userMethodCall = FileParserUtils.getRecursiveMethodCall(userMethod);
-                    MethodCallExpr methodCall = FileParserUtils.getRecursiveMethodCall(recursive_method);
+                    MethodCallExpr userMethodCall = getRecursiveMethodCall(userMethod);
+                    MethodCallExpr methodCall = getRecursiveMethodCall(recursive_method);
 
                     // Estrapolazione degli argomenti da confrontare nelle due chiamate ricorsive
                     NodeList userCallArguments = userMethodCall.getArguments();

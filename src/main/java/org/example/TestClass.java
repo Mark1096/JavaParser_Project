@@ -5,58 +5,53 @@ public class TestClass {
     private double y;
 
     public void recursive(int i, double j) {
-        if(i == 0) return;
+        if (i == 0) return;
         System.out.println("Method recursive");
         double m = j;
-        recursive(i-1, m/2);
+        recursive(i - 1, m / 2);
     }
 
-    public int fattoriale(int dim)
-    {
-        if(dim == 0) {
+    public int fattoriale(int dim) {
+        if (dim == 0) {
             return 1;
         }
-        return dim*fattoriale(dim-1);
+        return dim * fattoriale(dim - 1);
     }
 
-    static void bubbleSort(int vec[], int dim)
-    {
+    static void bubbleSort(int vec[], int dim) {
         if (dim == 1)
             return;
 
-        for (int i=0; i<dim-1; i++) {
-            if (vec[i] > vec[i+1])
-            {
+        for (int i = 0; i < dim - 1; i++) {
+            if (vec[i] > vec[i + 1]) {
                 int temp = vec[i];
-                vec[i] = vec[i+1];
-                vec[i+1] = temp;
+                vec[i] = vec[i + 1];
+                vec[i + 1] = temp;
             }
         }
 
-        bubbleSort(vec, dim-1);
+        bubbleSort(vec, dim - 1);
     }
 
-    static int minIndex(int a[], int i, int j)
-    {
+    static int minIndex(int a[], int i, int j) {
         if (i == j)
             return i;
 
         int k = minIndex(a, i + 1, j);
 
-        return (a[i] < a[k])? i : k;
+        return (a[i] < a[k]) ? i : k;
     }
 
-    static void recurSelectionSort(int a[], int n, int index)
-    {
+    static void recurSelectionSort(int a[], int n, int index) {
         // Return when starting and size are same
         if (index == n)
             return;
 
         // calling minimum index function for minimum index
-        int k = minIndex(a, index, n-1);
+        int k = minIndex(a, index, n - 1);
 
         // Swapping when index nd minimum index are not same
-        if (k != index){
+        if (k != index) {
             // swap
             int temp = a[k];
             a[k] = a[index];
@@ -66,40 +61,35 @@ public class TestClass {
         recurSelectionSort(a, n, index + 1);
     }
 
-    static void insertionSortRecursive(int arr[], int n)
-    {
+    static void insertionSortRecursive(int arr[], int n) {
         // Base case
         if (n <= 1)
             return;
 
         // Sort first n-1 elements
-        insertionSortRecursive( arr, n-1 );
+        insertionSortRecursive(arr, n - 1);
 
         // Insert last element at its correct position
         // in sorted array.
-        int last = arr[n-1];
-        int j = n-2;
+        int last = arr[n - 1];
+        int j = n - 2;
 
         /* Move elements of arr[0..i-1], that are
           greater than key, to one position ahead
           of their current position */
-        while (j >= 0 && arr[j] > last)
-        {
-            arr[j+1] = arr[j];
+        while (j >= 0 && arr[j] > last) {
+            arr[j + 1] = arr[j];
             j--;
         }
-        arr[j+1] = last;
+        arr[j + 1] = last;
     }
 
-    public int partition(int arr[], int low, int high)
-    {
+    public int partition(int arr[], int low, int high) {
         int pivot = arr[high];
-        int i = (low-1); // index of smaller element
-        for (int j=low; j<high; j++)
-        {
+        int i = (low - 1); // index of smaller element
+        for (int j = low; j < high; j++) {
             // If current element is smaller than the pivot
-            if (arr[j] < pivot)
-            {
+            if (arr[j] < pivot) {
                 i++;
 
                 // swap arr[i] and arr[j]
@@ -110,30 +100,27 @@ public class TestClass {
         }
 
         // swap arr[i+1] and arr[high] (or pivot)
-        int temp = arr[i+1];
-        arr[i+1] = arr[high];
+        int temp = arr[i + 1];
+        arr[i + 1] = arr[high];
         arr[high] = temp;
 
-        return i+1;
+        return i + 1;
     }
 
-    public void quickSort(int arr[], int l, int h)
-    {
-        if (l < h)
-        {
+    public void quickSort(int arr[], int l, int h) {
+        if (l < h) {
             /* pi is partitioning index, arr[pi] is
               now at right place */
             int pi = partition(arr, l, h);
 
             // Recursively sort elements before
             // partition and after partition
-            quickSort(arr, l, pi-1);
-            quickSort(arr, pi+1, h);
+            quickSort(arr, l, pi - 1);
+            quickSort(arr, pi + 1, h);
         }
     }
 
-    public void merge(int arr[], int l, int m, int r)
-    {
+    public void merge(int arr[], int l, int m, int r) {
         // Find sizes of two subarrays to be merged
         int n1 = m - l + 1;
         int n2 = r - m;
@@ -159,8 +146,7 @@ public class TestClass {
             if (L[i] <= R[j]) {
                 arr[k] = L[i];
                 i++;
-            }
-            else {
+            } else {
                 arr[k] = R[j];
                 j++;
             }
@@ -182,8 +168,7 @@ public class TestClass {
         }
     }
 
-    public void mergeSort(int arr[], int l, int r)
-    {
+    public void mergeSort(int arr[], int l, int r) {
         if (l < r) {
             // Find the middle point
             int m = (l + r) / 2;
