@@ -11,28 +11,15 @@ import com.github.javaparser.ast.stmt.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.example.AnalysisMethod.getRecursiveMethodCall;
-import static org.example.FileParserUtils.getAllUserMethodList;
-import static org.example.FileParserUtils.retrieveCompilationUnit;
-import static org.example.Singleton.getFile;
+import static org.example.AnalysisIterativeMethod.replaceRecursiveWithIterativeMethod;
+import static org.example.AnalysisRecursiveMethod.getRecursiveMethodCall;
+import static org.example.FileParserUtils.retrieveAlgorithmsToExaminedList;
 
 public class App {
-
-    public static final String userDirectory = Paths.get("").toAbsolutePath().toString().split("target")[0];
-    // Il nome del file dell'utente, in questo caso, è TestClass.java. Riflettere sulla possibilità di passare il file in maniera diversa ed estrapolare il suo nome tramite un'API,
-    // oppure imporre all'utente di rinominare il file con un nome scelto da me, in modo tale da poterlo utilizzare nel path per trovare il file.
-    public static final String file_path = userDirectory + "src/main/java/org/example/TestClass.java";
-    // La soluzione sottostante ha il problema che il path assoluto debba essere necessariamente il mio, quindi il programma non può funzionare se eseguito in un altro pc
-    // La soluzione sopra sistema proprio questo problema.
-    //   public static final String file_path = "C:/Users/Marco/Desktop/Tesi triennale/Codice/src/main/java/org/example/TestClass.java";
-    public static final File file = new File(file_path);
 
     // Restituisce l'indice del parametro passato in input a questo metodo dalla lista dei parametri estrapolata dalla firma del metodo.
     // Restituisce -1 nel caso in cui il parametro passato in input non sia effettivamente un parametro della firma del metodo che si sta analizzando.
@@ -351,45 +338,13 @@ public class App {
     }
 
 
-    // Fa in modo di sostituire alla versione iterativa (da restituire all'utente) tutti i nomi dei parametri formali
-    // in modo tale da mantenere i nomi scelti dall'utente nella sua versione ricorsiva. Chiaramente i nomi vengono sostituiti
-    // nella versione iterativa sia nella firma del metodo sia nel corpo del metodo, dove vengono utilizzati.
-    public static MethodDeclaration replaceMethodParametersName(MethodDeclaration iterative_method, MethodDeclaration userMethod) {
-        MethodDeclaration result = null;
-
-        System.out.println("iterative_method: " + iterative_method);
-
-        String iterativeParameter;
-        String userParameter;
-        String bodyMethod = iterative_method.toString();
-
-        // Ciclo che permette di prelevare ogni singolo parametro dalla firma del metodo iterativo e sostituirlo con il
-        // nome del parametro scelto dall'utente nella sua versione ricorsiva.
-        for (int i = 0; i < iterative_method.getParameters().size(); i++) {
-            iterativeParameter = iterative_method.getParameter(i).getType().toString();
-            userParameter = userMethod.getParameter(i).getType().toString();
-
-            if (iterativeParameter.equals(userParameter)) {
-                bodyMethod = bodyMethod.replaceAll("\\b" + iterative_method.getParameter(i).getNameAsString() + "\\b", userMethod.getParameter(i).getNameAsString());
-            }
-        }
-
-        result = StaticJavaParser.parseMethodDeclaration(bodyMethod);
-
-        return result;
-    }
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         /* Ristrutturare completamente il codice utilizzando una programmazione ad oggetti, quindi inserendo delle classi e facendole collaborare tra loro.
          *  Come funzionalità e logica va più che bene, quindi non bisogna riscrivere i metodi considerando la logica. Al massimo fare ancora un po' di refactoring, così da
          *  semplificare i metodi (renderli più piccoli e specifici) ed evitare controlli ripetuti (dove è possibile farlo).
          */
         List<MethodDeclaration> listUserRecursiveMethods = FileParserUtils.getRecursiveUserMethodList();
-
-        // Directory che contiene le versioni standard di alcuni algoritmi ricorsivi e le corrispondenti versioni iterative
-        File directoryPath = new File(file.getParent() + "/Algoritmi");
-        // Lista di tutti gli algoritmi da esaminare all'interno della directory "Algoritmi".
-        File algorithmList[] = directoryPath.listFiles();
+        File[] algorithmList = retrieveAlgorithmsToExaminedList();
 
         CompilationUnit file_algorithm;
         MethodDeclaration recursive_method;
@@ -853,28 +808,7 @@ public class App {
 
                     System.out.println("Stessi argomenti nella chiamata ricorsiva al metodo!");
 
-                    // Se tutti i controlli precedenti hanno dato esito positivo, si può procedere al prelevamento della versione iterativa
-                    // corrispondente al metodo ricorsivo uguale al metodo dell'utente.
-                    File iterativePath = files.stream().filter(item -> item.getName().contains("Iterative")).findAny().get();
-                    file_algorithm = StaticJavaParser.parse(iterativePath);
-                    // Estrapolazione del metodo iterativo da andare a sostituire al metodo ricorsivo dell'utente.
-                    MethodDeclaration iterative_method = file_algorithm.findFirst(MethodDeclaration.class).get();
-
-                    // Prima di sostituire il metodo iterativo con quello ricorsivo (dell'utente), viene richiamato il metodo sottostante,
-                    // in modo tale da mantenere invariati i nomi dei parametri della versione ricorsiva (dell'utente).
-                    MethodDeclaration newIterativeMethod = replaceMethodParametersName(iterative_method, userMethod);
-
-                    // Ciclo che itera per ogni metodo trovato all'interno della classe del file utente
-                    for (MethodDeclaration methodDeclaration : getAllUserMethodList()) {
-                        // Verifica che la dichiarazione del metodo corrente sia uguale alla dichiarazione del metodo da sostituire.
-                        if (methodDeclaration.getDeclarationAsString().equals(userMethod.getDeclarationAsString())) {
-                            // Una volta trovato il metodo da sostituire, vengono inseriti tutti i parametri formali e il corpo del metodo iterativo,
-                            // in modo tale da completare la sostituzione del metodo utente.
-                            methodDeclaration.setParameters(newIterativeMethod.getParameters());
-                            methodDeclaration.setBody(newIterativeMethod.getBody().get().asBlockStmt());
-                            break;
-                        }
-                    }
+                    replaceRecursiveWithIterativeMethod(files, userMethod);
                     break;  // Consente di non controllare altri algoritmi disponibili nella directory "Algoritmi", poiché è già stato trovato
                     // quello corrispondente al metodo dell'utente ed è avvenuta con successo la sostituzione del metodo ricorsivo (dell'utente).
                 }
