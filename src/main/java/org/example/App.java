@@ -18,6 +18,7 @@ import java.util.List;
 import static org.example.AnalysisIterativeMethod.replaceRecursiveWithIterativeMethod;
 import static org.example.AnalysisRecursiveMethod.getRecursiveMethodCall;
 import static org.example.FileParserUtils.retrieveAlgorithmsToExaminedList;
+import static org.example.FileParserUtils.retrieveUserFileList;
 
 public class App {
 
@@ -339,485 +340,485 @@ public class App {
 
 
     public static void main(String[] args) throws Exception {
-        /* Ristrutturare completamente il codice utilizzando una programmazione ad oggetti, quindi inserendo delle classi e facendole collaborare tra loro.
-         *  Come funzionalità e logica va più che bene, quindi non bisogna riscrivere i metodi considerando la logica. Al massimo fare ancora un po' di refactoring, così da
-         *  semplificare i metodi (renderli più piccoli e specifici) ed evitare controlli ripetuti (dove è possibile farlo).
-         */
-        List<MethodDeclaration> listUserRecursiveMethods = FileParserUtils.getRecursiveUserMethodList();
-        File[] algorithmList = retrieveAlgorithmsToExaminedList();
 
-        CompilationUnit file_algorithm;
-        MethodDeclaration recursive_method;
+        for (File userFile : retrieveUserFileList()) {
+            List<MethodDeclaration> listUserRecursiveMethods = FileParserUtils.getRecursiveUserMethodList(userFile);
+            File[] algorithmList = retrieveAlgorithmsToExaminedList();
 
-        // Ciclo che itera tutti i metodi ricorsivi trovati nel file dell'utente e restituisce la versione iterativa
-        // di tutti e soli ricorsivi dei quali si trova una corrispondenza con le versioni ricorsive disponibili nella directory "Algoritmi".
-        for (MethodDeclaration userMethod : listUserRecursiveMethods) {
+            CompilationUnit file_algorithm;
+            MethodDeclaration recursive_method;
 
-            // Ciclo che itera ogni directory, contenente l'algoritmo ricorsivo da confrontare con quello dell'utente
-            for (File file : algorithmList) {
-                List<File> files = new ArrayList(Arrays.asList(file.listFiles()));  // lista dei file all'interno della directory contenente l'algoritmo corrente
-                File recursivePath = files.stream().filter(item -> item.getName().contains("Recursive")).findAny().get();   // Prelevamento file contenente solo la versione ricorsiva dell'algoritmo da andare a confrontare
+            // Ciclo che itera tutti i metodi ricorsivi trovati nel file dell'utente e restituisce la versione iterativa
+            // di tutti e soli ricorsivi dei quali si trova una corrispondenza con le versioni ricorsive disponibili nella directory "Algoritmi".
+            for (MethodDeclaration userMethod : listUserRecursiveMethods) {
 
-                file_algorithm = StaticJavaParser.parse(recursivePath); // analisi e salvataggio del contenuto del file
-                recursive_method = file_algorithm.findFirst(MethodDeclaration.class).get(); // prelevamento del primo metodo della classe che sarà proprio quello da confrontare
+                // Ciclo che itera ogni directory, contenente l'algoritmo ricorsivo da confrontare con quello dell'utente
+                for (File file : algorithmList) {
+                    List<File> files = new ArrayList(Arrays.asList(file.listFiles()));  // lista dei file all'interno della directory contenente l'algoritmo corrente
+                    File recursivePath = files.stream().filter(item -> item.getName().contains("Recursive")).findAny().get();   // Prelevamento file contenente solo la versione ricorsiva dell'algoritmo da andare a confrontare
 
-                // Prima ancora di verificare il corpo dei metodi ricorsivi viene verificata la firma, in modo tale da
-                // rigettare un metodo già in partenza qualora non dovesse risultare con la stessa firma, evitando così di controllare l'intero corpo inutilmente.
-                // Controllo dell'intestazione dei metodi
-                if (userMethod.getParameters().size() == recursive_method.getParameters().size() &&
-                        userMethod.getSignature().getParameterTypes().equals(recursive_method.getSignature().getParameterTypes()) &&
-                        userMethod.getType().equals(recursive_method.getType())) {
+                    file_algorithm = StaticJavaParser.parse(recursivePath); // analisi e salvataggio del contenuto del file
+                    recursive_method = file_algorithm.findFirst(MethodDeclaration.class).get(); // prelevamento del primo metodo della classe che sarà proprio quello da confrontare
 
-                    // Liste degli strumenti da andare ad analizzare nei metodi disponibili nella directory "Algoritmi".
-                    List<IfStmt> ifListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(IfStmt.class);
-                    List<ForStmt> forListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(ForStmt.class);
-                    List<ForEachStmt> forEachListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(ForEachStmt.class);
-                    List<WhileStmt> whileListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(WhileStmt.class);
-                    List<SwitchStmt> switchListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(SwitchStmt.class);
-                    List<BreakStmt> breakListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(BreakStmt.class);
-                    List<ContinueStmt> continueListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(ContinueStmt.class);
+                    // Prima ancora di verificare il corpo dei metodi ricorsivi viene verificata la firma, in modo tale da
+                    // rigettare un metodo già in partenza qualora non dovesse risultare con la stessa firma, evitando così di controllare l'intero corpo inutilmente.
+                    // Controllo dell'intestazione dei metodi
+                    if (userMethod.getParameters().size() == recursive_method.getParameters().size() &&
+                            userMethod.getSignature().getParameterTypes().equals(recursive_method.getSignature().getParameterTypes()) &&
+                            userMethod.getType().equals(recursive_method.getType())) {
 
-                    // Liste degli strumenti da andare ad analizzare nei metodi dell'utente.
-                    List<IfStmt> ifListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(IfStmt.class);
-                    List<ForStmt> forListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ForStmt.class);
-                    List<ForEachStmt> forEachListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ForEachStmt.class);
-                    List<WhileStmt> whileListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(WhileStmt.class);
-                    List<SwitchStmt> switchListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(SwitchStmt.class);
-                    List<BreakStmt> breakListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(BreakStmt.class);
-                    List<ContinueStmt> continueListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ContinueStmt.class);
+                        // Liste degli strumenti da andare ad analizzare nei metodi disponibili nella directory "Algoritmi".
+                        List<IfStmt> ifListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(IfStmt.class);
+                        List<ForStmt> forListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(ForStmt.class);
+                        List<ForEachStmt> forEachListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(ForEachStmt.class);
+                        List<WhileStmt> whileListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(WhileStmt.class);
+                        List<SwitchStmt> switchListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(SwitchStmt.class);
+                        List<BreakStmt> breakListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(BreakStmt.class);
+                        List<ContinueStmt> continueListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(ContinueStmt.class);
 
-                    // Verifica che in entrambi i metodi sia utilizzata la stessa quantità di ogni strumento
-                    if (ifListUserMethod.size() != ifListMethod.size() ||
-                            forListUserMethod.size() != forListMethod.size() ||
-                            forEachListUserMethod.size() != forEachListMethod.size() ||
-                            whileListUserMethod.size() != whileListMethod.size() ||
-                            switchListUserMethod.size() != switchListMethod.size() ||
-                            breakListUserMethod.size() != breakListMethod.size() ||
-                            continueListUserMethod.size() != continueListMethod.size()) {
-                        System.out.println("Numero di costrutti iterativi o condizionali diverso!");
-                        continue;
-                    }
+                        // Liste degli strumenti da andare ad analizzare nei metodi dell'utente.
+                        List<IfStmt> ifListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(IfStmt.class);
+                        List<ForStmt> forListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ForStmt.class);
+                        List<ForEachStmt> forEachListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ForEachStmt.class);
+                        List<WhileStmt> whileListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(WhileStmt.class);
+                        List<SwitchStmt> switchListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(SwitchStmt.class);
+                        List<BreakStmt> breakListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(BreakStmt.class);
+                        List<ContinueStmt> continueListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ContinueStmt.class);
 
-                    // Se hanno la stessa quantità di if (che non è pari a zero), allora si analizza la condizione
-                    if (!(ifListUserMethod.isEmpty()) && !(ifListMethod.isEmpty())) {
-                        int i = 0;
-                        // Ciclo che itera la lista di if dei metodi correnti messi a confronto
-                        while (i < ifListUserMethod.size()) {
-
-                            // Estrapolazione intera condizione degli if
-                            String userCondition = ifListUserMethod.get(i).getCondition().toString();
-                            String condition = ifListMethod.get(i).getCondition().toString();
-
-                            // Passaggio delle due condizioni al metodo che ne confronterà i contenuti
-                            if (!compareConditionsElements(userMethod, recursive_method, userCondition, condition))
-                                break;
-
-                            System.out.println("Nessun problema con l'if corrente!");
-                            i++;
+                        // Verifica che in entrambi i metodi sia utilizzata la stessa quantità di ogni strumento
+                        if (ifListUserMethod.size() != ifListMethod.size() ||
+                                forListUserMethod.size() != forListMethod.size() ||
+                                forEachListUserMethod.size() != forEachListMethod.size() ||
+                                whileListUserMethod.size() != whileListMethod.size() ||
+                                switchListUserMethod.size() != switchListMethod.size() ||
+                                breakListUserMethod.size() != breakListMethod.size() ||
+                                continueListUserMethod.size() != continueListMethod.size()) {
+                            System.out.println("Numero di costrutti iterativi o condizionali diverso!");
+                            continue;
                         }
 
-                        // Se si dovesse uscire dal ciclo prima di aver verificato tutti gli if (per qualche confronto andato male),
-                        // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
-                        if (i != ifListUserMethod.size()) {
-                            System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
-                            continue;  // mi permette di evitare tutti controlli sottostanti inutilmente e di andare direttamente alla prossima iterazione dove verrà prelevato un nuovo metodo da analizzare
+                        // Se hanno la stessa quantità di if (che non è pari a zero), allora si analizza la condizione
+                        if (!(ifListUserMethod.isEmpty()) && !(ifListMethod.isEmpty())) {
+                            int i = 0;
+                            // Ciclo che itera la lista di if dei metodi correnti messi a confronto
+                            while (i < ifListUserMethod.size()) {
+
+                                // Estrapolazione intera condizione degli if
+                                String userCondition = ifListUserMethod.get(i).getCondition().toString();
+                                String condition = ifListMethod.get(i).getCondition().toString();
+
+                                // Passaggio delle due condizioni al metodo che ne confronterà i contenuti
+                                if (!compareConditionsElements(userMethod, recursive_method, userCondition, condition))
+                                    break;
+
+                                System.out.println("Nessun problema con l'if corrente!");
+                                i++;
+                            }
+
+                            // Se si dovesse uscire dal ciclo prima di aver verificato tutti gli if (per qualche confronto andato male),
+                            // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
+                            if (i != ifListUserMethod.size()) {
+                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
+                                continue;  // mi permette di evitare tutti controlli sottostanti inutilmente e di andare direttamente alla prossima iterazione dove verrà prelevato un nuovo metodo da analizzare
+                            }
                         }
-                    }
 
-                    // Se hanno la stessa quantità di for (che non è pari a zero), allora si procede all'analisi dell'inizializzazione, delle condizione e dell'aggiornamento della variabile del ciclo
-                    // Da qui effettuare i controlli per i for
-                    if (!(forListUserMethod.isEmpty()) && !(forListMethod.isEmpty())) {
-                        int i = 0;
-                        // Ciclo che itera la lista di for dei metodi correnti messi a confronto
-                        while (i < forListUserMethod.size()) {
+                        // Se hanno la stessa quantità di for (che non è pari a zero), allora si procede all'analisi dell'inizializzazione, delle condizione e dell'aggiornamento della variabile del ciclo
+                        // Da qui effettuare i controlli per i for
+                        if (!(forListUserMethod.isEmpty()) && !(forListMethod.isEmpty())) {
+                            int i = 0;
+                            // Ciclo che itera la lista di for dei metodi correnti messi a confronto
+                            while (i < forListUserMethod.size()) {
 
-                            // se il for è privo d'inizializzazione, condizione e aggiornamento, non si ha nulla da controllare e si passa al prossimo for
-                            if ((forListUserMethod.get(i).getInitialization().isEmpty() && forListMethod.get(i).getInitialization().isEmpty()) &&
-                                    (!(forListUserMethod.get(i).getCompare().isPresent()) && !(forListMethod.get(i).getCompare().isPresent())) &&
-                                    (forListUserMethod.get(i).getUpdate().isEmpty()) && forListMethod.get(i).getUpdate().isEmpty()) {
-                                continue;
-                            }
+                                // se il for è privo d'inizializzazione, condizione e aggiornamento, non si ha nulla da controllare e si passa al prossimo for
+                                if ((forListUserMethod.get(i).getInitialization().isEmpty() && forListMethod.get(i).getInitialization().isEmpty()) &&
+                                        (!(forListUserMethod.get(i).getCompare().isPresent()) && !(forListMethod.get(i).getCompare().isPresent())) &&
+                                        (forListUserMethod.get(i).getUpdate().isEmpty()) && forListMethod.get(i).getUpdate().isEmpty()) {
+                                    continue;
+                                }
 
-                            // Se uno dei due for ha una sezione non vuota e l'altro ha la stessa sezione vuota, allora i for saranno diversi, quindi si esce dal ciclo
-                            // per evidenziare una differenza nel confronto del corpo dei metodi
-                            if (forListUserMethod.get(i).getInitialization().isEmpty() && forListMethod.get(i).getInitialization().isNonEmpty() ||
-                                    forListUserMethod.get(i).getInitialization().isNonEmpty() && forListMethod.get(i).getInitialization().isEmpty() ||
-                                    forListUserMethod.get(i).getCompare().isPresent() && (!(forListMethod.get(i).getCompare().isPresent())) ||
-                                    (!(forListUserMethod.get(i).getCompare().isPresent())) && forListMethod.get(i).getCompare().isPresent() ||
-                                    forListUserMethod.get(i).getUpdate().isEmpty() && forListMethod.get(i).getUpdate().isNonEmpty() ||
-                                    forListUserMethod.get(i).getUpdate().isNonEmpty() && forListMethod.get(i).getUpdate().isEmpty())
-                                break;
-
-                            // Se la sezione relativa alla condizione è presente in entrambi i for, si analizzano gli elementi interni
-                            if (forListUserMethod.get(i).getCompare().isPresent()) {
-
-                                // Estrapolazione delle condizioni dei for nei due metodi
-                                String userCondition = forListUserMethod.get(i).getCompare().get().toString();
-                                String condition = forListMethod.get(i).getCompare().get().toString();
-
-                                // Passaggio delle due condizioni dei for da confrontare
-                                if (!compareConditionsElements(userMethod, recursive_method, userCondition, condition)) {
-                                    System.out.println("Error in getCompare");
+                                // Se uno dei due for ha una sezione non vuota e l'altro ha la stessa sezione vuota, allora i for saranno diversi, quindi si esce dal ciclo
+                                // per evidenziare una differenza nel confronto del corpo dei metodi
+                                if (forListUserMethod.get(i).getInitialization().isEmpty() && forListMethod.get(i).getInitialization().isNonEmpty() ||
+                                        forListUserMethod.get(i).getInitialization().isNonEmpty() && forListMethod.get(i).getInitialization().isEmpty() ||
+                                        forListUserMethod.get(i).getCompare().isPresent() && (!(forListMethod.get(i).getCompare().isPresent())) ||
+                                        (!(forListUserMethod.get(i).getCompare().isPresent())) && forListMethod.get(i).getCompare().isPresent() ||
+                                        forListUserMethod.get(i).getUpdate().isEmpty() && forListMethod.get(i).getUpdate().isNonEmpty() ||
+                                        forListUserMethod.get(i).getUpdate().isNonEmpty() && forListMethod.get(i).getUpdate().isEmpty())
                                     break;
-                                }
-                            }
 
-                            // Se la sezione relativa all'inizializzazione è presente in entrambi i for, si analizzano gli elementi interni
-                            // Controllo sull'inizializzazione
-                            if (forListUserMethod.get(i).getInitialization().isNonEmpty()) {
-                                List<String> listUserVariables = new ArrayList();
-                                List<String> listVariables = new ArrayList();
+                                // Se la sezione relativa alla condizione è presente in entrambi i for, si analizzano gli elementi interni
+                                if (forListUserMethod.get(i).getCompare().isPresent()) {
 
-                                // Estrapolazione delle inizializzazioni dei for nei due metodi
-                                String userInitialization = forListUserMethod.get(i).getInitialization().get(0).toString();
-                                String initialization = forListMethod.get(i).getInitialization().get(0).toString();
+                                    // Estrapolazione delle condizioni dei for nei due metodi
+                                    String userCondition = forListUserMethod.get(i).getCompare().get().toString();
+                                    String condition = forListMethod.get(i).getCompare().get().toString();
 
-                                // Vengono contate possibili inizializzazioni multiple di variabili iterative
-                                int userCount = StringUtils.countMatches(userInitialization, ",");
-                                int count = StringUtils.countMatches(initialization, ",");
-
-                                // Se il numero di variabili inizializzate nel ciclo for è diverso rispetto a quello dell'altro ciclo, si uscirà dal ciclo (considerato come esito negativo)
-                                if (userCount != count) {
-                                    System.out.println("Singola inizializzazione di una variabile vs molteplici inizializzazioni nel for!");
-                                    break;
-                                }
-
-                                // Se hanno lo stesso numero d'inizializzazioni di variabili iterative, si analizza il contenuto
-                                if (userCount != 0) {
-                                    // Caso nel quale si hanno inizializzazioni multiple
-                                    // Vengono salvate nelle rispettive liste tutte le inizializzazioni che vengono trovate nel for
-                                    String[] userVariablesInitialization = forListUserMethod.get(i).getInitialization().get(0).toString().split(",", userCount + 1);
-                                    String[] variablesInitialization = forListMethod.get(i).getInitialization().get(0).toString().split(",", count + 1);
-                                    listUserVariables = Arrays.asList(userVariablesInitialization);
-                                    listVariables = Arrays.asList(variablesInitialization);
-                                } else {
-                                    // Caso nel quale si ha una singola inizializzazione, quindi viene inserita l'unica variabile di ciclo nelle rispettive liste
-                                    listUserVariables.add(userInitialization);
-                                    listVariables.add(initialization);
-                                }
-
-                                String userVariableContent;
-                                String variableContent;
-                                boolean result = true;
-
-                                // Ciclo che itera per ogni variabile iterativa inizializzata nel for
-                                for (int index = 0; index < listUserVariables.size(); index++) {
-                                    // Estrapolazione del contenuto delle variabili inizializzate correnti nei due for
-                                    userVariableContent = listUserVariables.get(index).split("=")[1].trim();
-                                    variableContent = listVariables.get(index).split("=")[1].trim();
-
-                                    // Passaggio delle due variabili di ciclo da confrontare
-                                    if (!compareElementContent(userMethod, recursive_method, userVariableContent, variableContent)) {
-                                        result = false;
+                                    // Passaggio delle due condizioni dei for da confrontare
+                                    if (!compareConditionsElements(userMethod, recursive_method, userCondition, condition)) {
+                                        System.out.println("Error in getCompare");
                                         break;
                                     }
                                 }
 
-                                // Se anche solo un confronto tra variabili di ciclo non va a buon fine, si esce subito dal ciclo (indica un esito negativo)
-                                if (!result)
-                                    break;
-                            }
+                                // Se la sezione relativa all'inizializzazione è presente in entrambi i for, si analizzano gli elementi interni
+                                // Controllo sull'inizializzazione
+                                if (forListUserMethod.get(i).getInitialization().isNonEmpty()) {
+                                    List<String> listUserVariables = new ArrayList();
+                                    List<String> listVariables = new ArrayList();
 
-                            // Se la sezione relativa all'aggiornamento è presente in entrambi i for, si analizzano gli elementi interni
-                            // Controllo sull'update della variabile del ciclo for
-                            if (forListUserMethod.get(i).getUpdate().isNonEmpty()) {
-                                List userUpdateList = forListUserMethod.get(i).getUpdate();
-                                List updateList = forListMethod.get(i).getUpdate();
+                                    // Estrapolazione delle inizializzazioni dei for nei due metodi
+                                    String userInitialization = forListUserMethod.get(i).getInitialization().get(0).toString();
+                                    String initialization = forListMethod.get(i).getInitialization().get(0).toString();
 
-                                // Verifica che il numero di variabili di ciclo aggiornate sia lo stesso per entrambi i for messi a confronto
-                                if (userUpdateList.size() != updateList.size()) {
-                                    System.out.println("Singolo aggiornamento di una variabile vs molteplici aggiornamenti nel for!");
-                                    break;
-                                }
+                                    // Vengono contate possibili inizializzazioni multiple di variabili iterative
+                                    int userCount = StringUtils.countMatches(userInitialization, ",");
+                                    int count = StringUtils.countMatches(initialization, ",");
 
-                                Expression userExpression;
-                                Expression expression;
-                                boolean result = true;
-
-                                // Ciclo che itera per ogni variabile iterativa aggiornata nel for
-                                for (int index = 0; index < userUpdateList.size(); index++) {
-                                    // Essendoci diversi modi per aggiornare la variabile, si analizza la sua espressione per capire come viene aggiornata
-                                    userExpression = StaticJavaParser.parseExpression(userUpdateList.get(index).toString());
-                                    expression = StaticJavaParser.parseExpression(updateList.get(index).toString());
-
-                                    // Se il tipo di aggiornamento è diverso, allora si esce dal ciclo (con esito negativo)
-                                    if (userExpression.getMetaModel() != expression.getMetaModel()) {
-                                        result = false;
+                                    // Se il numero di variabili inizializzate nel ciclo for è diverso rispetto a quello dell'altro ciclo, si uscirà dal ciclo (considerato come esito negativo)
+                                    if (userCount != count) {
+                                        System.out.println("Singola inizializzazione di una variabile vs molteplici inizializzazioni nel for!");
                                         break;
                                     }
 
-                                    // Caso nel quale entrambi aggiornano con: i++, ++i, i--, --i
-                                    if (userExpression.isUnaryExpr() && expression.isUnaryExpr()) {
-
-                                        // Verifica che l'operatore utilizzato per aggiornare la variabile di ciclo sia lo stesso per entrambi
-                                        if (userExpression.asUnaryExpr().getOperator() != expression.asUnaryExpr().getOperator()) {
-                                            result = false;
-                                            break;
-                                        }
-
-                                        // Estrapolazione dei nomi delle variabili di ciclo da aggiornare
-                                        String userElement = userExpression.asUnaryExpr().getExpression().toString();
-                                        String element = expression.asUnaryExpr().getExpression().toString();
-
-                                        // Passaggio dei nomi delle variabili da confrontare
-                                        if (!(compareElementContent(userMethod, recursive_method, userElement, element))) {
-                                            result = false;
-                                            break;
-                                        }
+                                    // Se hanno lo stesso numero d'inizializzazioni di variabili iterative, si analizza il contenuto
+                                    if (userCount != 0) {
+                                        // Caso nel quale si hanno inizializzazioni multiple
+                                        // Vengono salvate nelle rispettive liste tutte le inizializzazioni che vengono trovate nel for
+                                        String[] userVariablesInitialization = forListUserMethod.get(i).getInitialization().get(0).toString().split(",", userCount + 1);
+                                        String[] variablesInitialization = forListMethod.get(i).getInitialization().get(0).toString().split(",", count + 1);
+                                        listUserVariables = Arrays.asList(userVariablesInitialization);
+                                        listVariables = Arrays.asList(variablesInitialization);
                                     } else {
-                                        // Caso nel quale il tipo di aggiornamento è differente. Anche qui viene confrontato come prima cosa l'operatore
-                                        if (userExpression.asAssignExpr().getOperator() != expression.asAssignExpr().getOperator()) {
+                                        // Caso nel quale si ha una singola inizializzazione, quindi viene inserita l'unica variabile di ciclo nelle rispettive liste
+                                        listUserVariables.add(userInitialization);
+                                        listVariables.add(initialization);
+                                    }
+
+                                    String userVariableContent;
+                                    String variableContent;
+                                    boolean result = true;
+
+                                    // Ciclo che itera per ogni variabile iterativa inizializzata nel for
+                                    for (int index = 0; index < listUserVariables.size(); index++) {
+                                        // Estrapolazione del contenuto delle variabili inizializzate correnti nei due for
+                                        userVariableContent = listUserVariables.get(index).split("=")[1].trim();
+                                        variableContent = listVariables.get(index).split("=")[1].trim();
+
+                                        // Passaggio delle due variabili di ciclo da confrontare
+                                        if (!compareElementContent(userMethod, recursive_method, userVariableContent, variableContent)) {
                                             result = false;
                                             break;
+                                        }
+                                    }
+
+                                    // Se anche solo un confronto tra variabili di ciclo non va a buon fine, si esce subito dal ciclo (indica un esito negativo)
+                                    if (!result)
+                                        break;
+                                }
+
+                                // Se la sezione relativa all'aggiornamento è presente in entrambi i for, si analizzano gli elementi interni
+                                // Controllo sull'update della variabile del ciclo for
+                                if (forListUserMethod.get(i).getUpdate().isNonEmpty()) {
+                                    List userUpdateList = forListUserMethod.get(i).getUpdate();
+                                    List updateList = forListMethod.get(i).getUpdate();
+
+                                    // Verifica che il numero di variabili di ciclo aggiornate sia lo stesso per entrambi i for messi a confronto
+                                    if (userUpdateList.size() != updateList.size()) {
+                                        System.out.println("Singolo aggiornamento di una variabile vs molteplici aggiornamenti nel for!");
+                                        break;
+                                    }
+
+                                    Expression userExpression;
+                                    Expression expression;
+                                    boolean result = true;
+
+                                    // Ciclo che itera per ogni variabile iterativa aggiornata nel for
+                                    for (int index = 0; index < userUpdateList.size(); index++) {
+                                        // Essendoci diversi modi per aggiornare la variabile, si analizza la sua espressione per capire come viene aggiornata
+                                        userExpression = StaticJavaParser.parseExpression(userUpdateList.get(index).toString());
+                                        expression = StaticJavaParser.parseExpression(updateList.get(index).toString());
+
+                                        // Se il tipo di aggiornamento è diverso, allora si esce dal ciclo (con esito negativo)
+                                        if (userExpression.getMetaModel() != expression.getMetaModel()) {
+                                            result = false;
+                                            break;
+                                        }
+
+                                        // Caso nel quale entrambi aggiornano con: i++, ++i, i--, --i
+                                        if (userExpression.isUnaryExpr() && expression.isUnaryExpr()) {
+
+                                            // Verifica che l'operatore utilizzato per aggiornare la variabile di ciclo sia lo stesso per entrambi
+                                            if (userExpression.asUnaryExpr().getOperator() != expression.asUnaryExpr().getOperator()) {
+                                                result = false;
+                                                break;
+                                            }
+
+                                            // Estrapolazione dei nomi delle variabili di ciclo da aggiornare
+                                            String userElement = userExpression.asUnaryExpr().getExpression().toString();
+                                            String element = expression.asUnaryExpr().getExpression().toString();
+
+                                            // Passaggio dei nomi delle variabili da confrontare
+                                            if (!(compareElementContent(userMethod, recursive_method, userElement, element))) {
+                                                result = false;
+                                                break;
+                                            }
                                         } else {
-                                            String userPreAssignElement = userExpression.asAssignExpr().getTarget().toString().trim();
-                                            String preAssignElement = expression.asAssignExpr().getTarget().toString().trim();
-
-                                            // Passaggio delle variabili aggiornate dei due for
-                                            if (!(compareElementContent(userMethod, recursive_method, userPreAssignElement, preAssignElement))) {
+                                            // Caso nel quale il tipo di aggiornamento è differente. Anche qui viene confrontato come prima cosa l'operatore
+                                            if (userExpression.asAssignExpr().getOperator() != expression.asAssignExpr().getOperator()) {
                                                 result = false;
                                                 break;
-                                            }
-
-                                            if (userExpression.asAssignExpr().getValue().getMetaModel() != expression.asAssignExpr().getValue().getMetaModel()) {
-                                                result = false;
-                                                break;
-                                            }
-
-                                            if (userExpression.asAssignExpr().getValue().isBinaryExpr()) {
-                                                if (userExpression.asAssignExpr().getValue().asBinaryExpr().getOperator() != expression.asAssignExpr().getValue().asBinaryExpr().getOperator()) {
-                                                    result = false;
-                                                    break;
-                                                }
-
-                                                String leftUserElement = userExpression.asAssignExpr().getValue().asBinaryExpr().getLeft().toString().trim();
-                                                String leftElement = expression.asAssignExpr().getValue().asBinaryExpr().getLeft().toString().trim();
-                                                String rightUserElement = userExpression.asAssignExpr().getValue().asBinaryExpr().getRight().toString().trim();
-                                                String rightElement = expression.asAssignExpr().getValue().asBinaryExpr().getRight().toString().trim();
-
-                                                if (!(compareElementContent(userMethod, recursive_method, leftUserElement, leftElement))) {
-                                                    result = false;
-                                                    break;
-                                                }
-                                                if (!(compareElementContent(userMethod, recursive_method, rightUserElement, rightElement))) {
-                                                    result = false;
-                                                    break;
-                                                }
                                             } else {
-                                                if (userExpression.asAssignExpr().getValue().isNameExpr()) {
-                                                    String userElement = userExpression.asAssignExpr().getValue().toString().trim();
-                                                    String element = expression.asAssignExpr().getValue().toString().trim();
+                                                String userPreAssignElement = userExpression.asAssignExpr().getTarget().toString().trim();
+                                                String preAssignElement = expression.asAssignExpr().getTarget().toString().trim();
 
-                                                    if (!(compareElementContent(userMethod, recursive_method, userElement, element))) {
+                                                // Passaggio delle variabili aggiornate dei due for
+                                                if (!(compareElementContent(userMethod, recursive_method, userPreAssignElement, preAssignElement))) {
+                                                    result = false;
+                                                    break;
+                                                }
+
+                                                if (userExpression.asAssignExpr().getValue().getMetaModel() != expression.asAssignExpr().getValue().getMetaModel()) {
+                                                    result = false;
+                                                    break;
+                                                }
+
+                                                if (userExpression.asAssignExpr().getValue().isBinaryExpr()) {
+                                                    if (userExpression.asAssignExpr().getValue().asBinaryExpr().getOperator() != expression.asAssignExpr().getValue().asBinaryExpr().getOperator()) {
+                                                        result = false;
+                                                        break;
+                                                    }
+
+                                                    String leftUserElement = userExpression.asAssignExpr().getValue().asBinaryExpr().getLeft().toString().trim();
+                                                    String leftElement = expression.asAssignExpr().getValue().asBinaryExpr().getLeft().toString().trim();
+                                                    String rightUserElement = userExpression.asAssignExpr().getValue().asBinaryExpr().getRight().toString().trim();
+                                                    String rightElement = expression.asAssignExpr().getValue().asBinaryExpr().getRight().toString().trim();
+
+                                                    if (!(compareElementContent(userMethod, recursive_method, leftUserElement, leftElement))) {
+                                                        result = false;
+                                                        break;
+                                                    }
+                                                    if (!(compareElementContent(userMethod, recursive_method, rightUserElement, rightElement))) {
                                                         result = false;
                                                         break;
                                                     }
                                                 } else {
-                                                    if (!userExpression.asAssignExpr().getValue().toString().equals(expression.asAssignExpr().getValue().toString())) {
-                                                        result = false;
-                                                        break;
+                                                    if (userExpression.asAssignExpr().getValue().isNameExpr()) {
+                                                        String userElement = userExpression.asAssignExpr().getValue().toString().trim();
+                                                        String element = expression.asAssignExpr().getValue().toString().trim();
+
+                                                        if (!(compareElementContent(userMethod, recursive_method, userElement, element))) {
+                                                            result = false;
+                                                            break;
+                                                        }
+                                                    } else {
+                                                        if (!userExpression.asAssignExpr().getValue().toString().equals(expression.asAssignExpr().getValue().toString())) {
+                                                            result = false;
+                                                            break;
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
                                     }
+                                    // Se almeno un confronto non va a buon fine si esce subito dal ciclo (indica un esito negativo)
+                                    if (!result) break;
                                 }
-                                // Se almeno un confronto non va a buon fine si esce subito dal ciclo (indica un esito negativo)
-                                if (!result) break;
+
+                                System.out.println("Nessun problema con il for corrente!");
+                                i++;
                             }
-
-                            System.out.println("Nessun problema con il for corrente!");
-                            i++;
-                        }
-                        // Se si dovesse uscire dal ciclo prima di aver verificato tutti i for (per qualche confronto andato male),
-                        // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
-                        if (i != forListUserMethod.size()) {
-                            System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
-                            continue;
-                        }
-                    }
-
-                    // Se hanno la stessa quantità di forEach (che non è pari a zero), allora si procede all'analisi
-                    // Da qui effettuare i controlli per i forEach
-                    if (!(forEachListUserMethod.isEmpty()) && !(forEachListMethod.isEmpty())) {
-                        int i = 0;
-
-                        // Ciclo che itera la lista di forEach dei metodi correnti messi a confronto
-                        while (i < forEachListUserMethod.size()) {
-                            // Estrapolazione delle strutture dati dalle quali prelevare ogni singolo elemento da iterare nei due forEach
-                            String userIterativeElement = forEachListUserMethod.get(i).getIterable().toString();
-                            String iterativeElement = forEachListMethod.get(i).getIterable().toString();
-                            // Estrapolazione dei tipi di dati da andare ad iterare nei due forEach
-                            String userTypeVariable = forEachListUserMethod.get(i).getVariable().asVariableDeclarationExpr().getVariable(0).getType().toString();
-                            String typeVariable = forEachListMethod.get(i).getVariable().asVariableDeclarationExpr().getVariable(0).getType().toString();
-
-                            if (!userTypeVariable.equals(typeVariable)) {
-                                System.out.println("Il tipo della variabile nei forEach è diverso!");
-                                break;
+                            // Se si dovesse uscire dal ciclo prima di aver verificato tutti i for (per qualche confronto andato male),
+                            // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
+                            if (i != forListUserMethod.size()) {
+                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
+                                continue;
                             }
-
-                            if (!compareElementContent(userMethod, recursive_method, userIterativeElement, iterativeElement)) {
-                                System.out.println("La struttura iterativa dei forEach è diversa!");
-                                break;
-                            }
-
-                            System.out.println("Nessun problema con il forEach corrente!");
-                            i++;
                         }
 
-                        // Se si dovesse uscire dal ciclo prima di aver verificato tutti i forEach (per qualche confronto andato male),
-                        // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
-                        if (i != forEachListUserMethod.size()) {
-                            System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
-                            continue;
+                        // Se hanno la stessa quantità di forEach (che non è pari a zero), allora si procede all'analisi
+                        // Da qui effettuare i controlli per i forEach
+                        if (!(forEachListUserMethod.isEmpty()) && !(forEachListMethod.isEmpty())) {
+                            int i = 0;
+
+                            // Ciclo che itera la lista di forEach dei metodi correnti messi a confronto
+                            while (i < forEachListUserMethod.size()) {
+                                // Estrapolazione delle strutture dati dalle quali prelevare ogni singolo elemento da iterare nei due forEach
+                                String userIterativeElement = forEachListUserMethod.get(i).getIterable().toString();
+                                String iterativeElement = forEachListMethod.get(i).getIterable().toString();
+                                // Estrapolazione dei tipi di dati da andare ad iterare nei due forEach
+                                String userTypeVariable = forEachListUserMethod.get(i).getVariable().asVariableDeclarationExpr().getVariable(0).getType().toString();
+                                String typeVariable = forEachListMethod.get(i).getVariable().asVariableDeclarationExpr().getVariable(0).getType().toString();
+
+                                if (!userTypeVariable.equals(typeVariable)) {
+                                    System.out.println("Il tipo della variabile nei forEach è diverso!");
+                                    break;
+                                }
+
+                                if (!compareElementContent(userMethod, recursive_method, userIterativeElement, iterativeElement)) {
+                                    System.out.println("La struttura iterativa dei forEach è diversa!");
+                                    break;
+                                }
+
+                                System.out.println("Nessun problema con il forEach corrente!");
+                                i++;
+                            }
+
+                            // Se si dovesse uscire dal ciclo prima di aver verificato tutti i forEach (per qualche confronto andato male),
+                            // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
+                            if (i != forEachListUserMethod.size()) {
+                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
+                                continue;
+                            }
+
                         }
 
-                    }
+                        // Se hanno la stessa quantità di while (che non è pari a zero), allora si procede all'analisi
+                        // Da qui effettuare i controlli per i while
+                        if (!(whileListUserMethod.isEmpty()) && !(whileListMethod.isEmpty())) {
+                            int i = 0;
 
-                    // Se hanno la stessa quantità di while (che non è pari a zero), allora si procede all'analisi
-                    // Da qui effettuare i controlli per i while
-                    if (!(whileListUserMethod.isEmpty()) && !(whileListMethod.isEmpty())) {
-                        int i = 0;
+                            // Ciclo che itera la lista di while dei metodi correnti messi a confronto
+                            while (i < whileListUserMethod.size()) {
+                                // Estrapolazione dell'intera condizione nei due while da confrontare
+                                String userCondition = whileListUserMethod.get(i).getCondition().toString();
+                                String condition = whileListMethod.get(i).getCondition().toString();
 
-                        // Ciclo che itera la lista di while dei metodi correnti messi a confronto
-                        while (i < whileListUserMethod.size()) {
-                            // Estrapolazione dell'intera condizione nei due while da confrontare
-                            String userCondition = whileListUserMethod.get(i).getCondition().toString();
-                            String condition = whileListMethod.get(i).getCondition().toString();
+                                // Passaggio delle due condizioni da confrontare
+                                if (!compareConditionsElements(userMethod, recursive_method, userCondition, condition))
+                                    break;
 
-                            // Passaggio delle due condizioni da confrontare
-                            if (!compareConditionsElements(userMethod, recursive_method, userCondition, condition))
-                                break;
+                                System.out.println("Nessun problema con il while corrente!");
+                                i++;
+                            }
 
-                            System.out.println("Nessun problema con il while corrente!");
-                            i++;
+                            // Se si dovesse uscire dal ciclo prima di aver verificato tutti i while (per qualche confronto andato male),
+                            // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
+                            if (i != whileListUserMethod.size()) {
+                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
+                                continue;
+                            }
                         }
 
-                        // Se si dovesse uscire dal ciclo prima di aver verificato tutti i while (per qualche confronto andato male),
-                        // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
-                        if (i != whileListUserMethod.size()) {
-                            System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
-                            continue;
-                        }
-                    }
+                        // Da qui effettuare i controlli per i switch
+                        if (!(switchListUserMethod.isEmpty()) && !(switchListMethod.isEmpty())) {
+                            int i = 0;
 
-                    // Da qui effettuare i controlli per i switch
-                    if (!(switchListUserMethod.isEmpty()) && !(switchListMethod.isEmpty())) {
-                        int i = 0;
+                            // Ciclo che itera la lista di switch dei metodi correnti messi a confronto
+                            while (i < switchListUserMethod.size()) {
+                                // Estrapolazione dei selettori degli switch da confrontare
+                                String userSelector = switchListUserMethod.get(i).getSelector().toString();
+                                String selector = switchListMethod.get(i).getSelector().toString();
 
-                        // Ciclo che itera la lista di switch dei metodi correnti messi a confronto
-                        while (i < switchListUserMethod.size()) {
-                            // Estrapolazione dei selettori degli switch da confrontare
-                            String userSelector = switchListUserMethod.get(i).getSelector().toString();
-                            String selector = switchListMethod.get(i).getSelector().toString();
+                                // Passaggio dei selettori da confrontare
+                                if (!compareElementContent(userMethod, recursive_method, userSelector, selector)) {
+                                    System.out.println("Il selettore dello switch è diverso");
+                                    break;
+                                }
 
-                            // Passaggio dei selettori da confrontare
-                            if (!compareElementContent(userMethod, recursive_method, userSelector, selector)) {
-                                System.out.println("Il selettore dello switch è diverso");
-                                break;
-                            }
+                                // Conteggio casi di entrambi gli switch
+                                int userCountSwitchCase = switchListUserMethod.get(i).getEntries().size();
+                                int countSwitchCase = switchListMethod.get(i).getEntries().size();
 
-                            // Conteggio casi di entrambi gli switch
-                            int userCountSwitchCase = switchListUserMethod.get(i).getEntries().size();
-                            int countSwitchCase = switchListMethod.get(i).getEntries().size();
+                                // Verifica che il numero di casi di uno switch sia uguale al numero di casi dell'altro
+                                if (userCountSwitchCase != countSwitchCase) {
+                                    System.out.println("Il numero di casi all'interno dello switch è diverso!");
+                                    break;
+                                }
 
-                            // Verifica che il numero di casi di uno switch sia uguale al numero di casi dell'altro
-                            if (userCountSwitchCase != countSwitchCase) {
-                                System.out.println("Il numero di casi all'interno dello switch è diverso!");
-                                break;
-                            }
+                                if (switchListUserMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty() && switchListMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isNonEmpty() ||
+                                        switchListUserMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isNonEmpty() && switchListMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty()) {
+                                    System.out.println("Uno switch contiene come ultimo caso default, l'altro no!");
+                                    break;
+                                }
 
-                            if (switchListUserMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty() && switchListMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isNonEmpty() ||
-                                    switchListUserMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isNonEmpty() && switchListMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty()) {
-                                System.out.println("Uno switch contiene come ultimo caso default, l'altro no!");
-                                break;
-                            }
+                                // Se entrambi gli switch contengono default, viene decrementato il numero di casi da esaminare,
+                                // poichè "default" non viene considerato tra i casi dello switch da JavaParser
+                                if (switchListUserMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty() &&
+                                        switchListMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty()) {
+                                    userCountSwitchCase -= 1;
+                                }
 
-                            // Se entrambi gli switch contengono default, viene decrementato il numero di casi da esaminare,
-                            // poichè "default" non viene considerato tra i casi dello switch da JavaParser
-                            if (switchListUserMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty() &&
-                                    switchListMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty()) {
-                                userCountSwitchCase -= 1;
-                            }
+                                String userSwitchCase;
+                                String switchCase;
+                                boolean result = true;
 
-                            String userSwitchCase;
-                            String switchCase;
-                            boolean result = true;
+                                // Verifica l'esistenza di almeno un caso da poter esaminare
+                                if (userCountSwitchCase != 0) {
+                                    // Cicla per ogni caso trovato nello switch
+                                    for (int index = 0; index < userCountSwitchCase; index++) {
+                                        // Estrapolazione del caso corrente in entrambi gli switch
+                                        userSwitchCase = switchListUserMethod.get(i).getEntry(index).getLabels().get(0).toString();
+                                        switchCase = switchListMethod.get(i).getEntry(index).getLabels().get(0).toString();
 
-                            // Verifica l'esistenza di almeno un caso da poter esaminare
-                            if (userCountSwitchCase != 0) {
-                                // Cicla per ogni caso trovato nello switch
-                                for (int index = 0; index < userCountSwitchCase; index++) {
-                                    // Estrapolazione del caso corrente in entrambi gli switch
-                                    userSwitchCase = switchListUserMethod.get(i).getEntry(index).getLabels().get(0).toString();
-                                    switchCase = switchListMethod.get(i).getEntry(index).getLabels().get(0).toString();
-
-                                    // Passaggio dei casi degli switch da confrontare
-                                    if (!compareElementContent(userMethod, recursive_method, userSwitchCase, switchCase)) {
-                                        System.out.println("I casi " + userSwitchCase + " e " + switchCase + " sono diversi!");
-                                        result = false;
-                                        break;
+                                        // Passaggio dei casi degli switch da confrontare
+                                        if (!compareElementContent(userMethod, recursive_method, userSwitchCase, switchCase)) {
+                                            System.out.println("I casi " + userSwitchCase + " e " + switchCase + " sono diversi!");
+                                            result = false;
+                                            break;
+                                        }
                                     }
                                 }
+
+                                // Se un confronto tra i casi non va a buon fine, si esce subito dal ciclo (indica un esito negativo)
+                                if (!result) break;
+
+                                System.out.println("Nessun problema con lo switch corrente!");
+                                i++;
                             }
 
-                            // Se un confronto tra i casi non va a buon fine, si esce subito dal ciclo (indica un esito negativo)
-                            if (!result) break;
-
-                            System.out.println("Nessun problema con lo switch corrente!");
-                            i++;
+                            // Se si dovesse uscire dal ciclo prima di aver verificato tutti gli switch (per qualche confronto andato male),
+                            // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
+                            if (i != switchListUserMethod.size()) {
+                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
+                                continue;
+                            }
                         }
 
-                        // Se si dovesse uscire dal ciclo prima di aver verificato tutti gli switch (per qualche confronto andato male),
-                        // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
-                        if (i != switchListUserMethod.size()) {
-                            System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
+                        // Se tutti i controlli precedenti sono andati a buon fine, verrà eseguito il codice sottostante, che effettuerà
+                        // un ulteriore controllo nel corpo dei metodi.
+                        // Estrapolazione delle due chiamate ricorsive dai metodi messi a confronto
+                        MethodCallExpr userMethodCall = getRecursiveMethodCall(userMethod);
+                        MethodCallExpr methodCall = getRecursiveMethodCall(recursive_method);
+
+                        // Estrapolazione degli argomenti da confrontare nelle due chiamate ricorsive
+                        NodeList userCallArguments = userMethodCall.getArguments();
+                        NodeList callArguments = methodCall.getArguments();
+
+                        boolean sameParameters = true;
+
+                        // Cicla per ogni argomento trovato
+                        for (int index = 0; index < userCallArguments.size(); index++) {
+                            // Estrapolazione degli argomenti correnti da confrontare
+                            String userArgument = userCallArguments.get(index).toString();
+                            String argument = callArguments.get(index).toString();
+
+                            // Passaggio degli argomenti da confrontare
+                            if (!compareElementContent(userMethod, recursive_method, userArgument, argument)) {
+                                sameParameters = false;
+                                break;
+                            }
+                        }
+
+                        // Se uno dei confronti tra argomenti dà esito negativo, si ignora tutto il codice sottostante e si passa al prossimo metodo da confrontare
+                        if (!sameParameters) {
                             continue;
                         }
+
+                        System.out.println("Stessi argomenti nella chiamata ricorsiva al metodo!");
+
+                        replaceRecursiveWithIterativeMethod(files, userMethod);
+                        break;  // Consente di non controllare altri algoritmi disponibili nella directory "Algoritmi", poiché è già stato trovato
+                        // quello corrispondente al metodo dell'utente ed è avvenuta con successo la sostituzione del metodo ricorsivo (dell'utente).
                     }
-
-                    // Se tutti i controlli precedenti sono andati a buon fine, verrà eseguito il codice sottostante, che effettuerà
-                    // un ulteriore controllo nel corpo dei metodi.
-                    // Estrapolazione delle due chiamate ricorsive dai metodi messi a confronto
-                    MethodCallExpr userMethodCall = getRecursiveMethodCall(userMethod);
-                    MethodCallExpr methodCall = getRecursiveMethodCall(recursive_method);
-
-                    // Estrapolazione degli argomenti da confrontare nelle due chiamate ricorsive
-                    NodeList userCallArguments = userMethodCall.getArguments();
-                    NodeList callArguments = methodCall.getArguments();
-
-                    boolean sameParameters = true;
-
-                    // Cicla per ogni argomento trovato
-                    for (int index = 0; index < userCallArguments.size(); index++) {
-                        // Estrapolazione degli argomenti correnti da confrontare
-                        String userArgument = userCallArguments.get(index).toString();
-                        String argument = callArguments.get(index).toString();
-
-                        // Passaggio degli argomenti da confrontare
-                        if (!compareElementContent(userMethod, recursive_method, userArgument, argument)) {
-                            sameParameters = false;
-                            break;
-                        }
-                    }
-
-                    // Se uno dei confronti tra argomenti dà esito negativo, si ignora tutto il codice sottostante e si passa al prossimo metodo da confrontare
-                    if (!sameParameters) {
-                        continue;
-                    }
-
-                    System.out.println("Stessi argomenti nella chiamata ricorsiva al metodo!");
-
-                    replaceRecursiveWithIterativeMethod(files, userMethod);
-                    break;  // Consente di non controllare altri algoritmi disponibili nella directory "Algoritmi", poiché è già stato trovato
-                    // quello corrispondente al metodo dell'utente ed è avvenuta con successo la sostituzione del metodo ricorsivo (dell'utente).
                 }
             }
+
+
+            // TODO: far eseguire il punto 4 se e solo se il punto 3 restituisce un esito positivo (in caso far restituire un booleano)
+            // Aggiornamento del vecchio contenuto del file utente con quello nuovo.
+            FileParserUtils.updateUserFile();
+
         }
-
-        // Aggiornamento del vecchio contenuto del file utente con quello nuovo.
-        FileParserUtils.updateUserFile();
-
-        // TESI CONCLUSA!!
     }
 }

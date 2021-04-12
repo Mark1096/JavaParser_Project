@@ -8,7 +8,7 @@ public enum ErrorCode {
     METHODLESS_CLASS_APPLICATION("Methodless class application"),
     METHODLESS_CLASS_USER("Methodless class user"),
     BAD_WRITING_FILE("Error in writing file"),
-    FILE_NOT_FOUND("File not found");
+    TROUBLE_PARSING_FILE("Trouble parsing file");
 
     private String message;
 

@@ -12,7 +12,7 @@ import java.util.List;
 
 import static org.example.ErrorCode.generateErrorException;
 import static org.example.FileParserUtils.getAllUserMethodList;
-import static org.example.FileParserUtils.retrieveApplicationCompilationUnit;
+import static org.example.FileParserUtils.retrieveApplicationMethods;
 
 public class AnalysisIterativeMethod extends AnalysisMethod {
 
@@ -28,7 +28,7 @@ public class AnalysisIterativeMethod extends AnalysisMethod {
 
     public static void replaceRecursiveWithIterativeMethod(List<File> files, MethodDeclaration userMethod) throws ErrorException, FileNotFoundException {
         File iterativePath = retrieveIterativeFile(files, ErrorCode.MALFORMED_FILENAME_APPLICATION);
-        MethodDeclaration iterative_method = retrieveApplicationCompilationUnit(iterativePath);
+        MethodDeclaration iterative_method = retrieveApplicationMethods(iterativePath);
 
         // Prima di sostituire il metodo iterativo con quello ricorsivo (dell'utente), viene richiamato il metodo sottostante,
         // in modo tale da mantenere invariati i nomi dei parametri della versione ricorsiva (dell'utente).
