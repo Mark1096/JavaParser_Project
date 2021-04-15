@@ -2,14 +2,13 @@
 
 ## Building
 
-# Comando per lanciare il programma: mvn clean compile install && cd target && java -jar JavaParser_Project-1.0-SNAPSHOT-jar-with-dependencies.jar && cd ..
+Comando per lanciare il programma: 
+    - mvn clean compile install && cd target && java -jar JavaParser_Project-1.0-SNAPSHOT-jar-with-dependencies.jar && cd ..
 
-TODO : Comandi per fare la build
-
-## Lista roba che rimane da fare
+## Lista obiettivi
     1) Gestione file (lettura, scrittura) [Fatto]
     2) Analisi metodi della classe utente [Fatto]
-    3) Matching tra algoritmo utente e algoritmo disponibile
+    3) Matching tra algoritmo utente e algoritmo applicativo
     4) Sostituzione metodi ricorsivi utente con corrispondenti versioni iterative [Fatto]
     
     NOTA 1:(riflettere sulla possibilità di inalterare il file utente iniziale e creare una copia con le dovute modifiche)

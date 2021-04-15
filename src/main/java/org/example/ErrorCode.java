@@ -8,7 +8,8 @@ public enum ErrorCode {
     METHODLESS_CLASS_APPLICATION("Methodless class application"),
     METHODLESS_CLASS_USER("Methodless class user"),
     BAD_WRITING_FILE("Error in writing file"),
-    TROUBLE_PARSING_FILE("Trouble parsing file");
+    TROUBLE_PARSING_FILE("Trouble parsing file"),
+    ABSENCE_BODY_METHOD("Absence body method");
 
     private String message;
 

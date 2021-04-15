@@ -16,18 +16,12 @@ import static org.example.FileParserUtils.retrieveApplicationMethods;
 
 public class AnalysisIterativeMethod extends AnalysisMethod {
 
-    // Se tutti i controlli precedenti hanno dato esito positivo, si può procedere al prelevamento della versione iterativa
-    // corrispondente al metodo ricorsivo uguale al metodo dell'utente.
-    public static File retrieveIterativeFile(List<File> list, ErrorCode error) throws ErrorException {
-        return CollectionUtils.emptyIfNull(list)
-                .stream()
-                .filter(item -> item.getName().contains("Iterative"))
-                .findAny()
-                .orElseThrow(() -> generateErrorException(error));
+    public static File retrieveIterativeFile(List<File> files) throws ErrorException {
+        return retrieveMethodFile(files, "Iterative");
     }
 
     public static void replaceRecursiveWithIterativeMethod(List<File> files, MethodDeclaration userMethod) throws ErrorException, FileNotFoundException {
-        File iterativePath = retrieveIterativeFile(files, ErrorCode.MALFORMED_FILENAME_APPLICATION);
+        File iterativePath = retrieveIterativeFile(files);
         MethodDeclaration iterative_method = retrieveApplicationMethods(iterativePath);
 
         // Prima di sostituire il metodo iterativo con quello ricorsivo (dell'utente), viene richiamato il metodo sottostante,

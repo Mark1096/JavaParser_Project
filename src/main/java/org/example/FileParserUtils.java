@@ -62,9 +62,7 @@ public class FileParserUtils {
         }
     }
 
-    // TODO : DA SISTEMARE I COMMENTI + PUNTAMENTO FILE
     public static File[] retrieveAlgorithmsToExaminedList() {
-
         // Directory che contiene le versioni standard di alcuni algoritmi ricorsivi e le corrispondenti versioni iterative
         File directoryPath = new File(retrieveAlgorithmsPath());
         // Lista di tutti gli algoritmi da esaminare all'interno della directory "Algoritmi".

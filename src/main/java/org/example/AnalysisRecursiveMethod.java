@@ -8,13 +8,15 @@ import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class AnalysisRecursiveMethod extends AnalysisMethod {
 
-    private AnalysisRecursiveMethod() {
+    public static File retrieveRecursiveFile(List<File> files) throws ErrorException {
+        return retrieveMethodFile(files, "Recursive");
     }
 
     // Restituisce tutti e soli i metodi ricorsivi che vengono trovati all'interno del corpo del metodo passato in input

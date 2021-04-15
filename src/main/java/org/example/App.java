@@ -1,13 +1,15 @@
 package org.example;
 
 import com.github.javaparser.StaticJavaParser;
-import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.stmt.*;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.ForEachStmt;
+import com.github.javaparser.ast.stmt.ForStmt;
+import com.github.javaparser.ast.stmt.SwitchStmt;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -17,8 +19,9 @@ import java.util.List;
 
 import static org.example.AnalysisIterativeMethod.replaceRecursiveWithIterativeMethod;
 import static org.example.AnalysisRecursiveMethod.getRecursiveMethodCall;
-import static org.example.FileParserUtils.retrieveAlgorithmsToExaminedList;
-import static org.example.FileParserUtils.retrieveUserFileList;
+import static org.example.AnalysisRecursiveMethod.retrieveRecursiveFile;
+import static org.example.AnalysisStatementConstructs.*;
+import static org.example.FileParserUtils.*;
 
 public class App {
 
@@ -345,8 +348,6 @@ public class App {
             List<MethodDeclaration> listUserRecursiveMethods = FileParserUtils.getRecursiveUserMethodList(userFile);
             File[] algorithmList = retrieveAlgorithmsToExaminedList();
 
-            CompilationUnit file_algorithm;
-            MethodDeclaration recursive_method;
 
             // Ciclo che itera tutti i metodi ricorsivi trovati nel file dell'utente e restituisce la versione iterativa
             // di tutti e soli ricorsivi dei quali si trova una corrispondenza con le versioni ricorsive disponibili nella directory "Algoritmi".
@@ -355,72 +356,39 @@ public class App {
                 // Ciclo che itera ogni directory, contenente l'algoritmo ricorsivo da confrontare con quello dell'utente
                 for (File file : algorithmList) {
                     List<File> files = new ArrayList(Arrays.asList(file.listFiles()));  // lista dei file all'interno della directory contenente l'algoritmo corrente
-                    File recursivePath = files.stream().filter(item -> item.getName().contains("Recursive")).findAny().get();   // Prelevamento file contenente solo la versione ricorsiva dell'algoritmo da andare a confrontare
 
-                    file_algorithm = StaticJavaParser.parse(recursivePath); // analisi e salvataggio del contenuto del file
-                    recursive_method = file_algorithm.findFirst(MethodDeclaration.class).get(); // prelevamento del primo metodo della classe che sarà proprio quello da confrontare
+                    // Prelevamento file contenente solo la versione ricorsiva dell'algoritmo da andare a confrontare
+                    // Analisi e salvataggio del contenuto del file
+                    // prelevamento del primo metodo della classe che sarà proprio quello da confrontare
+                    MethodDeclaration recursiveMethod = retrieveApplicationMethods(retrieveRecursiveFile(files));
 
                     // Prima ancora di verificare il corpo dei metodi ricorsivi viene verificata la firma, in modo tale da
                     // rigettare un metodo già in partenza qualora non dovesse risultare con la stessa firma, evitando così di controllare l'intero corpo inutilmente.
                     // Controllo dell'intestazione dei metodi
-                    if (userMethod.getParameters().size() == recursive_method.getParameters().size() &&
-                            userMethod.getSignature().getParameterTypes().equals(recursive_method.getSignature().getParameterTypes()) &&
-                            userMethod.getType().equals(recursive_method.getType())) {
+                    if (checkMethodSignature(userMethod, recursiveMethod)) {
 
                         // Liste degli strumenti da andare ad analizzare nei metodi disponibili nella directory "Algoritmi".
-                        List<IfStmt> ifListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(IfStmt.class);
-                        List<ForStmt> forListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(ForStmt.class);
-                        List<ForEachStmt> forEachListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(ForEachStmt.class);
-                        List<WhileStmt> whileListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(WhileStmt.class);
-                        List<SwitchStmt> switchListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(SwitchStmt.class);
-                        List<BreakStmt> breakListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(BreakStmt.class);
-                        List<ContinueStmt> continueListMethod = recursive_method.findFirst(BlockStmt.class).get().getChildNodesByType(ContinueStmt.class);
+                        List<ForStmt> forListMethod = recursiveMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ForStmt.class);
+                        List<ForEachStmt> forEachListMethod = recursiveMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ForEachStmt.class);
+                        List<SwitchStmt> switchListMethod = recursiveMethod.findFirst(BlockStmt.class).get().getChildNodesByType(SwitchStmt.class);
 
                         // Liste degli strumenti da andare ad analizzare nei metodi dell'utente.
-                        List<IfStmt> ifListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(IfStmt.class);
                         List<ForStmt> forListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ForStmt.class);
                         List<ForEachStmt> forEachListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ForEachStmt.class);
-                        List<WhileStmt> whileListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(WhileStmt.class);
                         List<SwitchStmt> switchListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(SwitchStmt.class);
-                        List<BreakStmt> breakListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(BreakStmt.class);
-                        List<ContinueStmt> continueListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ContinueStmt.class);
 
-                        // Verifica che in entrambi i metodi sia utilizzata la stessa quantità di ogni strumento
-                        if (ifListUserMethod.size() != ifListMethod.size() ||
-                                forListUserMethod.size() != forListMethod.size() ||
-                                forEachListUserMethod.size() != forEachListMethod.size() ||
-                                whileListUserMethod.size() != whileListMethod.size() ||
-                                switchListUserMethod.size() != switchListMethod.size() ||
-                                breakListUserMethod.size() != breakListMethod.size() ||
-                                continueListUserMethod.size() != continueListMethod.size()) {
+                        // Verifica che in entrambi i metodi sia utilizzata la stessa quantità di costrutti
+                        if (compareSizeLists(userMethod, recursiveMethod)) {
                             System.out.println("Numero di costrutti iterativi o condizionali diverso!");
                             continue;
                         }
 
-                        // Se hanno la stessa quantità di if (che non è pari a zero), allora si analizza la condizione
-                        if (!(ifListUserMethod.isEmpty()) && !(ifListMethod.isEmpty())) {
-                            int i = 0;
-                            // Ciclo che itera la lista di if dei metodi correnti messi a confronto
-                            while (i < ifListUserMethod.size()) {
-
-                                // Estrapolazione intera condizione degli if
-                                String userCondition = ifListUserMethod.get(i).getCondition().toString();
-                                String condition = ifListMethod.get(i).getCondition().toString();
-
-                                // Passaggio delle due condizioni al metodo che ne confronterà i contenuti
-                                if (!compareConditionsElements(userMethod, recursive_method, userCondition, condition))
-                                    break;
-
-                                System.out.println("Nessun problema con l'if corrente!");
-                                i++;
-                            }
-
-                            // Se si dovesse uscire dal ciclo prima di aver verificato tutti gli if (per qualche confronto andato male),
-                            // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
-                            if (i != ifListUserMethod.size()) {
-                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
-                                continue;  // mi permette di evitare tutti controlli sottostanti inutilmente e di andare direttamente alla prossima iterazione dove verrà prelevato un nuovo metodo da analizzare
-                            }
+                        // mi permette di evitare tutti controlli sottostanti inutilmente e di andare direttamente alla prossima iterazione dove verrà prelevato un nuovo metodo da analizzare
+                        if (checkIfStatementList(userMethod, recursiveMethod)) {
+                            System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
+                            continue;
+                        } else {
+                            System.out.println("Nessun problema con i controlli sulla lista di IfStmt!");
                         }
 
                         // Se hanno la stessa quantità di for (che non è pari a zero), allora si procede all'analisi dell'inizializzazione, delle condizione e dell'aggiornamento della variabile del ciclo
@@ -455,7 +423,7 @@ public class App {
                                     String condition = forListMethod.get(i).getCompare().get().toString();
 
                                     // Passaggio delle due condizioni dei for da confrontare
-                                    if (!compareConditionsElements(userMethod, recursive_method, userCondition, condition)) {
+                                    if (!compareConditionsElements(userMethod, recursiveMethod, userCondition, condition)) {
                                         System.out.println("Error in getCompare");
                                         break;
                                     }
@@ -506,7 +474,7 @@ public class App {
                                         variableContent = listVariables.get(index).split("=")[1].trim();
 
                                         // Passaggio delle due variabili di ciclo da confrontare
-                                        if (!compareElementContent(userMethod, recursive_method, userVariableContent, variableContent)) {
+                                        if (!compareElementContent(userMethod, recursiveMethod, userVariableContent, variableContent)) {
                                             result = false;
                                             break;
                                         }
@@ -559,7 +527,7 @@ public class App {
                                             String element = expression.asUnaryExpr().getExpression().toString();
 
                                             // Passaggio dei nomi delle variabili da confrontare
-                                            if (!(compareElementContent(userMethod, recursive_method, userElement, element))) {
+                                            if (!(compareElementContent(userMethod, recursiveMethod, userElement, element))) {
                                                 result = false;
                                                 break;
                                             }
@@ -573,7 +541,7 @@ public class App {
                                                 String preAssignElement = expression.asAssignExpr().getTarget().toString().trim();
 
                                                 // Passaggio delle variabili aggiornate dei due for
-                                                if (!(compareElementContent(userMethod, recursive_method, userPreAssignElement, preAssignElement))) {
+                                                if (!(compareElementContent(userMethod, recursiveMethod, userPreAssignElement, preAssignElement))) {
                                                     result = false;
                                                     break;
                                                 }
@@ -594,11 +562,11 @@ public class App {
                                                     String rightUserElement = userExpression.asAssignExpr().getValue().asBinaryExpr().getRight().toString().trim();
                                                     String rightElement = expression.asAssignExpr().getValue().asBinaryExpr().getRight().toString().trim();
 
-                                                    if (!(compareElementContent(userMethod, recursive_method, leftUserElement, leftElement))) {
+                                                    if (!(compareElementContent(userMethod, recursiveMethod, leftUserElement, leftElement))) {
                                                         result = false;
                                                         break;
                                                     }
-                                                    if (!(compareElementContent(userMethod, recursive_method, rightUserElement, rightElement))) {
+                                                    if (!(compareElementContent(userMethod, recursiveMethod, rightUserElement, rightElement))) {
                                                         result = false;
                                                         break;
                                                     }
@@ -607,7 +575,7 @@ public class App {
                                                         String userElement = userExpression.asAssignExpr().getValue().toString().trim();
                                                         String element = expression.asAssignExpr().getValue().toString().trim();
 
-                                                        if (!(compareElementContent(userMethod, recursive_method, userElement, element))) {
+                                                        if (!(compareElementContent(userMethod, recursiveMethod, userElement, element))) {
                                                             result = false;
                                                             break;
                                                         }
@@ -631,7 +599,7 @@ public class App {
                             // Se si dovesse uscire dal ciclo prima di aver verificato tutti i for (per qualche confronto andato male),
                             // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
                             if (i != forListUserMethod.size()) {
-                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
+                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
                                 continue;
                             }
                         }
@@ -655,7 +623,7 @@ public class App {
                                     break;
                                 }
 
-                                if (!compareElementContent(userMethod, recursive_method, userIterativeElement, iterativeElement)) {
+                                if (!compareElementContent(userMethod, recursiveMethod, userIterativeElement, iterativeElement)) {
                                     System.out.println("La struttura iterativa dei forEach è diversa!");
                                     break;
                                 }
@@ -667,37 +635,17 @@ public class App {
                             // Se si dovesse uscire dal ciclo prima di aver verificato tutti i forEach (per qualche confronto andato male),
                             // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
                             if (i != forEachListUserMethod.size()) {
-                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
+                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
                                 continue;
                             }
 
                         }
 
-                        // Se hanno la stessa quantità di while (che non è pari a zero), allora si procede all'analisi
-                        // Da qui effettuare i controlli per i while
-                        if (!(whileListUserMethod.isEmpty()) && !(whileListMethod.isEmpty())) {
-                            int i = 0;
-
-                            // Ciclo che itera la lista di while dei metodi correnti messi a confronto
-                            while (i < whileListUserMethod.size()) {
-                                // Estrapolazione dell'intera condizione nei due while da confrontare
-                                String userCondition = whileListUserMethod.get(i).getCondition().toString();
-                                String condition = whileListMethod.get(i).getCondition().toString();
-
-                                // Passaggio delle due condizioni da confrontare
-                                if (!compareConditionsElements(userMethod, recursive_method, userCondition, condition))
-                                    break;
-
-                                System.out.println("Nessun problema con il while corrente!");
-                                i++;
-                            }
-
-                            // Se si dovesse uscire dal ciclo prima di aver verificato tutti i while (per qualche confronto andato male),
-                            // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
-                            if (i != whileListUserMethod.size()) {
-                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
-                                continue;
-                            }
+                        if (checkWhileStatementList(userMethod, recursiveMethod)) {
+                            System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
+                            continue;
+                        } else {
+                            System.out.println("Nessun problema con i controlli sulla lista di WhileStmt!");
                         }
 
                         // Da qui effettuare i controlli per i switch
@@ -711,7 +659,7 @@ public class App {
                                 String selector = switchListMethod.get(i).getSelector().toString();
 
                                 // Passaggio dei selettori da confrontare
-                                if (!compareElementContent(userMethod, recursive_method, userSelector, selector)) {
+                                if (!compareElementContent(userMethod, recursiveMethod, userSelector, selector)) {
                                     System.out.println("Il selettore dello switch è diverso");
                                     break;
                                 }
@@ -752,7 +700,7 @@ public class App {
                                         switchCase = switchListMethod.get(i).getEntry(index).getLabels().get(0).toString();
 
                                         // Passaggio dei casi degli switch da confrontare
-                                        if (!compareElementContent(userMethod, recursive_method, userSwitchCase, switchCase)) {
+                                        if (!compareElementContent(userMethod, recursiveMethod, userSwitchCase, switchCase)) {
                                             System.out.println("I casi " + userSwitchCase + " e " + switchCase + " sono diversi!");
                                             result = false;
                                             break;
@@ -770,7 +718,7 @@ public class App {
                             // Se si dovesse uscire dal ciclo prima di aver verificato tutti gli switch (per qualche confronto andato male),
                             // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
                             if (i != switchListUserMethod.size()) {
-                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursive_method);
+                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
                                 continue;
                             }
                         }
@@ -779,7 +727,7 @@ public class App {
                         // un ulteriore controllo nel corpo dei metodi.
                         // Estrapolazione delle due chiamate ricorsive dai metodi messi a confronto
                         MethodCallExpr userMethodCall = getRecursiveMethodCall(userMethod);
-                        MethodCallExpr methodCall = getRecursiveMethodCall(recursive_method);
+                        MethodCallExpr methodCall = getRecursiveMethodCall(recursiveMethod);
 
                         // Estrapolazione degli argomenti da confrontare nelle due chiamate ricorsive
                         NodeList userCallArguments = userMethodCall.getArguments();
@@ -794,7 +742,7 @@ public class App {
                             String argument = callArguments.get(index).toString();
 
                             // Passaggio degli argomenti da confrontare
-                            if (!compareElementContent(userMethod, recursive_method, userArgument, argument)) {
+                            if (!compareElementContent(userMethod, recursiveMethod, userArgument, argument)) {
                                 sameParameters = false;
                                 break;
                             }
