@@ -7,9 +7,7 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.ForEachStmt;
 import com.github.javaparser.ast.stmt.ForStmt;
-import com.github.javaparser.ast.stmt.SwitchStmt;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -369,13 +367,9 @@ public class App {
 
                         // Liste degli strumenti da andare ad analizzare nei metodi disponibili nella directory "Algoritmi".
                         List<ForStmt> forListMethod = recursiveMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ForStmt.class);
-                        List<ForEachStmt> forEachListMethod = recursiveMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ForEachStmt.class);
-                        List<SwitchStmt> switchListMethod = recursiveMethod.findFirst(BlockStmt.class).get().getChildNodesByType(SwitchStmt.class);
 
                         // Liste degli strumenti da andare ad analizzare nei metodi dell'utente.
                         List<ForStmt> forListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ForStmt.class);
-                        List<ForEachStmt> forEachListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(ForEachStmt.class);
-                        List<SwitchStmt> switchListUserMethod = userMethod.findFirst(BlockStmt.class).get().getChildNodesByType(SwitchStmt.class);
 
                         // Verifica che in entrambi i metodi sia utilizzata la stessa quantità di costrutti
                         if (compareSizeLists(userMethod, recursiveMethod)) {
@@ -387,8 +381,6 @@ public class App {
                         if (checkIfStatementList(userMethod, recursiveMethod)) {
                             System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
                             continue;
-                        } else {
-                            System.out.println("Nessun problema con i controlli sulla lista di IfStmt!");
                         }
 
                         // Se hanno la stessa quantità di for (che non è pari a zero), allora si procede all'analisi dell'inizializzazione, delle condizione e dell'aggiornamento della variabile del ciclo
@@ -604,123 +596,19 @@ public class App {
                             }
                         }
 
-                        // Se hanno la stessa quantità di forEach (che non è pari a zero), allora si procede all'analisi
-                        // Da qui effettuare i controlli per i forEach
-                        if (!(forEachListUserMethod.isEmpty()) && !(forEachListMethod.isEmpty())) {
-                            int i = 0;
-
-                            // Ciclo che itera la lista di forEach dei metodi correnti messi a confronto
-                            while (i < forEachListUserMethod.size()) {
-                                // Estrapolazione delle strutture dati dalle quali prelevare ogni singolo elemento da iterare nei due forEach
-                                String userIterativeElement = forEachListUserMethod.get(i).getIterable().toString();
-                                String iterativeElement = forEachListMethod.get(i).getIterable().toString();
-                                // Estrapolazione dei tipi di dati da andare ad iterare nei due forEach
-                                String userTypeVariable = forEachListUserMethod.get(i).getVariable().asVariableDeclarationExpr().getVariable(0).getType().toString();
-                                String typeVariable = forEachListMethod.get(i).getVariable().asVariableDeclarationExpr().getVariable(0).getType().toString();
-
-                                if (!userTypeVariable.equals(typeVariable)) {
-                                    System.out.println("Il tipo della variabile nei forEach è diverso!");
-                                    break;
-                                }
-
-                                if (!compareElementContent(userMethod, recursiveMethod, userIterativeElement, iterativeElement)) {
-                                    System.out.println("La struttura iterativa dei forEach è diversa!");
-                                    break;
-                                }
-
-                                System.out.println("Nessun problema con il forEach corrente!");
-                                i++;
-                            }
-
-                            // Se si dovesse uscire dal ciclo prima di aver verificato tutti i forEach (per qualche confronto andato male),
-                            // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
-                            if (i != forEachListUserMethod.size()) {
-                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
-                                continue;
-                            }
-
+                        if (checkForEachStatementList(userMethod, recursiveMethod)) {
+                            System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
+                            continue;
                         }
 
                         if (checkWhileStatementList(userMethod, recursiveMethod)) {
                             System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
                             continue;
-                        } else {
-                            System.out.println("Nessun problema con i controlli sulla lista di WhileStmt!");
                         }
 
-                        // Da qui effettuare i controlli per i switch
-                        if (!(switchListUserMethod.isEmpty()) && !(switchListMethod.isEmpty())) {
-                            int i = 0;
-
-                            // Ciclo che itera la lista di switch dei metodi correnti messi a confronto
-                            while (i < switchListUserMethod.size()) {
-                                // Estrapolazione dei selettori degli switch da confrontare
-                                String userSelector = switchListUserMethod.get(i).getSelector().toString();
-                                String selector = switchListMethod.get(i).getSelector().toString();
-
-                                // Passaggio dei selettori da confrontare
-                                if (!compareElementContent(userMethod, recursiveMethod, userSelector, selector)) {
-                                    System.out.println("Il selettore dello switch è diverso");
-                                    break;
-                                }
-
-                                // Conteggio casi di entrambi gli switch
-                                int userCountSwitchCase = switchListUserMethod.get(i).getEntries().size();
-                                int countSwitchCase = switchListMethod.get(i).getEntries().size();
-
-                                // Verifica che il numero di casi di uno switch sia uguale al numero di casi dell'altro
-                                if (userCountSwitchCase != countSwitchCase) {
-                                    System.out.println("Il numero di casi all'interno dello switch è diverso!");
-                                    break;
-                                }
-
-                                if (switchListUserMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty() && switchListMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isNonEmpty() ||
-                                        switchListUserMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isNonEmpty() && switchListMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty()) {
-                                    System.out.println("Uno switch contiene come ultimo caso default, l'altro no!");
-                                    break;
-                                }
-
-                                // Se entrambi gli switch contengono default, viene decrementato il numero di casi da esaminare,
-                                // poichè "default" non viene considerato tra i casi dello switch da JavaParser
-                                if (switchListUserMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty() &&
-                                        switchListMethod.get(i).getEntry(userCountSwitchCase - 1).getLabels().isEmpty()) {
-                                    userCountSwitchCase -= 1;
-                                }
-
-                                String userSwitchCase;
-                                String switchCase;
-                                boolean result = true;
-
-                                // Verifica l'esistenza di almeno un caso da poter esaminare
-                                if (userCountSwitchCase != 0) {
-                                    // Cicla per ogni caso trovato nello switch
-                                    for (int index = 0; index < userCountSwitchCase; index++) {
-                                        // Estrapolazione del caso corrente in entrambi gli switch
-                                        userSwitchCase = switchListUserMethod.get(i).getEntry(index).getLabels().get(0).toString();
-                                        switchCase = switchListMethod.get(i).getEntry(index).getLabels().get(0).toString();
-
-                                        // Passaggio dei casi degli switch da confrontare
-                                        if (!compareElementContent(userMethod, recursiveMethod, userSwitchCase, switchCase)) {
-                                            System.out.println("I casi " + userSwitchCase + " e " + switchCase + " sono diversi!");
-                                            result = false;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                // Se un confronto tra i casi non va a buon fine, si esce subito dal ciclo (indica un esito negativo)
-                                if (!result) break;
-
-                                System.out.println("Nessun problema con lo switch corrente!");
-                                i++;
-                            }
-
-                            // Se si dovesse uscire dal ciclo prima di aver verificato tutti gli switch (per qualche confronto andato male),
-                            // non viene fatto più nessun controllo e si passa direttamente ad un altro metodo da confrontare, scartando quello corrente.
-                            if (i != switchListUserMethod.size()) {
-                                System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
-                                continue;
-                            }
+                        if (checkSwitchStatementList(userMethod, recursiveMethod)) {
+                            System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
+                            continue;
                         }
 
                         // Se tutti i controlli precedenti sono andati a buon fine, verrà eseguito il codice sottostante, che effettuerà
