@@ -65,6 +65,7 @@ public class AnalysisRecursiveMethod extends AnalysisMethod {
                 .collect(Collectors.toList());
     }
 
+    // TODO: sistemare questo metodo, considerando il caso nel quale venga passata una costante come argomento della chiamata (al momento fa crashare il programma)
     private static List retrieveArgumentsType(NodeList arguments, MethodDeclaration methodDeclaration, List parametersType) {
         List argumentsType = new ArrayList();
         CollectionUtils.emptyIfNull(arguments)
@@ -72,7 +73,11 @@ public class AnalysisRecursiveMethod extends AnalysisMethod {
                     String argument = isBinary(arg.toString());
                     List<VariableDeclarationExpr> methodVariables =
                             methodDeclaration.getBody().get().findAll(VariableDeclarationExpr.class);
-                    argumentsType.addAll(retrieveMethodArgumentsList(methodVariables, argument));
+
+                    CollectionUtils.emptyIfNull(retrieveMethodArgumentsList(methodVariables, argument))
+                            .stream()
+                            .findFirst()
+                            .map(element -> argumentsType.add(element.getVariable(0).getType()));
 
                     // Verifica se l'argomento corrente sia già stato riconosciuto come variabile oppure no.
                     // Nel primo caso il controllo sottostante darà esito negativo e non verrà controllato

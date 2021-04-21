@@ -394,33 +394,9 @@ public class App {
                             continue;
                         }
 
-                        // Se tutti i controlli precedenti sono andati a buon fine, verrà eseguito il codice sottostante, che effettuerà
-                        // un ulteriore controllo nel corpo dei metodi.
-                        // Estrapolazione delle due chiamate ricorsive dai metodi messi a confronto
-                        MethodCallExpr userMethodCall = getRecursiveMethodCall(userMethod);
-                        MethodCallExpr methodCall = getRecursiveMethodCall(recursiveMethod);
-
-                        // Estrapolazione degli argomenti da confrontare nelle due chiamate ricorsive
-                        NodeList userCallArguments = userMethodCall.getArguments();
-                        NodeList callArguments = methodCall.getArguments();
-
-                        boolean sameParameters = true;
-
-                        // Cicla per ogni argomento trovato
-                        for (int index = 0; index < userCallArguments.size(); index++) {
-                            // Estrapolazione degli argomenti correnti da confrontare
-                            String userArgument = userCallArguments.get(index).toString();
-                            String argument = callArguments.get(index).toString();
-
-                            // Passaggio degli argomenti da confrontare
-                            if (!compareElementContent(userMethod, recursiveMethod, userArgument, argument)) {
-                                sameParameters = false;
-                                break;
-                            }
-                        }
-
-                        // Se uno dei confronti tra argomenti dà esito negativo, si ignora tutto il codice sottostante e si passa al prossimo metodo da confrontare
-                        if (!sameParameters) {
+                        if(checkRecursiveCallArguments(userMethod, recursiveMethod)) {
+                            System.out.println("Gli argomenti della chiamata al metodo sono diversi!");
+                            System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
                             continue;
                         }
 

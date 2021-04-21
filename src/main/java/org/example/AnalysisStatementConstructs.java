@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static org.example.AnalysisRecursiveMethod.getRecursiveMethodCall;
 import static org.example.App.compareConditionsElements;
 import static org.example.App.compareElementContent;
 import static org.example.ErrorCode.generateErrorException;
@@ -426,6 +427,15 @@ public class AnalysisStatementConstructs extends AnalysisMethod {
     // Metodo che garantisce che le liste non siano vuote e confronti le condizioni degli ForStmt
     public static boolean checkForList(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         return checkNotEmptyList(user, recursive, ForStmt.class) && checkAllForCondition(user, recursive);
+    }
+
+    // ZONE - Recursive call arguments
+    public static boolean checkRecursiveCallArguments(MethodDeclaration user, MethodDeclaration recursive) {
+        NodeList<Expression> userArgumentsList = getRecursiveMethodCall(user).getArguments();
+        NodeList<Expression> recursiveArgumentsList = getRecursiveMethodCall(recursive).getArguments();
+
+        return iterativeListsFlow(userArgumentsList.stream(), recursiveArgumentsList.stream())
+                .anyMatch(pair -> Boolean.TRUE == !compareElementContent(user, recursive, pair.getKey().toString(), pair.getValue().toString()));
     }
 
 }
