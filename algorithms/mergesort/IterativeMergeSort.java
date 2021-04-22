@@ -1,28 +1,21 @@
-package org.example.Algoritmi.mergesort;
-
 public class IterativeMergeSort {
-    public static void mergeSort(int[] array)
-    {
-        if(array == null)
-        {
+    public static void mergeSort(int[] array) {
+        if (array == null) {
             return;
         }
 
-        if(array.length > 1)
-        {
+        if (array.length > 1) {
             int mid = array.length / 2;
 
             // Split left part
             int[] left = new int[mid];
-            for(int i = 0; i < mid; i++)
-            {
+            for (int i = 0; i < mid; i++) {
                 left[i] = array[i];
             }
 
             // Split right part
             int[] right = new int[array.length - mid];
-            for(int i = mid; i < array.length; i++)
-            {
+            for (int i = mid; i < array.length; i++) {
                 right[i - mid] = array[i];
             }
             mergeSort(left);
@@ -33,29 +26,23 @@ public class IterativeMergeSort {
             int k = 0;
 
             // Merge left and right arrays
-            while(i < left.length && j < right.length)
-            {
-                if(left[i] < right[j])
-                {
+            while (i < left.length && j < right.length) {
+                if (left[i] < right[j]) {
                     array[k] = left[i];
                     i++;
-                }
-                else
-                {
+                } else {
                     array[k] = right[j];
                     j++;
                 }
                 k++;
             }
             // Collect remaining elements
-            while(i < left.length)
-            {
+            while (i < left.length) {
                 array[k] = left[i];
                 i++;
                 k++;
             }
-            while(j < right.length)
-            {
+            while (j < right.length) {
                 array[k] = right[j];
                 j++;
                 k++;

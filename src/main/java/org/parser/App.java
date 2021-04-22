@@ -1,23 +1,22 @@
-package org.example;
+package org.parser;
 
 import com.github.javaparser.StaticJavaParser;
-import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.MethodCallExpr;
 import org.apache.commons.lang3.StringUtils;
+import org.parser.file.FileParserUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.example.AnalysisIterativeMethod.replaceRecursiveWithIterativeMethod;
-import static org.example.AnalysisRecursiveMethod.getRecursiveMethodCall;
-import static org.example.AnalysisRecursiveMethod.retrieveRecursiveFile;
-import static org.example.AnalysisStatementConstructs.*;
-import static org.example.FileParserUtils.*;
+import static org.parser.file.FileParserUtils.*;
+import static org.parser.analysis.AnalysisIterativeMethod.replaceRecursiveWithIterativeMethod;
+import static org.parser.analysis.AnalysisMethod.*;
+import static org.parser.analysis.AnalysisRecursiveMethod.retrieveRecursiveFile;
+import static org.parser.analysis.AnalysisStatementConstructs.checkAllConstruct;
 
 public class App {
 
@@ -337,13 +336,11 @@ public class App {
         return checkCondition;
     }
 
-
     public static void main(String[] args) throws Exception {
 
         for (File userFile : retrieveUserFileList()) {
             List<MethodDeclaration> listUserRecursiveMethods = FileParserUtils.getRecursiveUserMethodList(userFile);
             File[] algorithmList = retrieveAlgorithmsToExaminedList();
-
 
             // Ciclo che itera tutti i metodi ricorsivi trovati nel file dell'utente e restituisce la versione iterativa
             // di tutti e soli ricorsivi dei quali si trova una corrispondenza con le versioni ricorsive disponibili nella directory "Algoritmi".
@@ -369,32 +366,12 @@ public class App {
                             continue;
                         }
 
-                        if (checkIfList(userMethod, recursiveMethod)) {
+                        if (checkAllConstruct(userMethod, recursiveMethod)) {
                             System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
                             continue;
                         }
 
-                        if (checkForList(userMethod, recursiveMethod)) {
-                            System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
-                            continue;
-                        }
-
-                        if (checkForEachList(userMethod, recursiveMethod)) {
-                            System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
-                            continue;
-                        }
-
-                        if (checkWhileList(userMethod, recursiveMethod)) {
-                            System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
-                            continue;
-                        }
-
-                        if (checkSwitchList(userMethod, recursiveMethod)) {
-                            System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
-                            continue;
-                        }
-
-                        if(checkRecursiveCallArguments(userMethod, recursiveMethod)) {
+                        if (checkRecursiveCallArguments(userMethod, recursiveMethod)) {
                             System.out.println("Gli argomenti della chiamata al metodo sono diversi!");
                             System.out.println("La versione iterativa del seguente metodo ricorsivo non è disponibile: " + recursiveMethod);
                             continue;

@@ -1,4 +1,4 @@
-package org.example;
+package org.parser.file;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -6,6 +6,8 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.parser.error.ErrorCode;
+import org.parser.error.ErrorException;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -15,8 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.example.AnalysisRecursiveMethod.getRecursiveMethodCall;
-import static org.example.ErrorCode.generateErrorException;
+import static org.parser.analysis.AnalysisRecursiveMethod.getRecursiveMethodCall;
+import static org.parser.error.ErrorCode.generateErrorException;
 
 public class FileParserUtils {
 

@@ -1,4 +1,4 @@
-package org.example;
+package org.parser;
 
 public class UserClass {
     public int x;

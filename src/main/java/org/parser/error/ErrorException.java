@@ -1,4 +1,4 @@
-package org.example;
+package org.parser.error;
 
 public class ErrorException extends Exception {
 

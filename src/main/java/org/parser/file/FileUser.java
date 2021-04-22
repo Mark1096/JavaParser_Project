@@ -1,11 +1,13 @@
-package org.example;
+package org.parser.file;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import org.parser.error.ErrorCode;
+import org.parser.error.ErrorException;
 
 import java.io.File;
 
-import static org.example.ErrorCode.generateErrorException;
+import static org.parser.error.ErrorCode.generateErrorException;
 
 public class FileUser {
     private CompilationUnit cu;

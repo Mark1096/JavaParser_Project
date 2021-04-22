@@ -1,10 +1,7 @@
-package org.example.Algoritmi.mergesort;
-
 public class RecursiveMergeSort {
     // Main function that sorts arr[l..r] using
     // merge()
-    void sort(int arr[], int l, int r)
-    {
+    void sort(int arr[], int l, int r) {
         if (l < r) {
             // Find the middle point
             int m = (l + r) / 2;
@@ -17,8 +14,8 @@ public class RecursiveMergeSort {
             merge(arr, l, m, r);
         }
     }
-    void merge(int arr[], int l, int m, int r)
-    {
+
+    void merge(int arr[], int l, int m, int r) {
         // Find sizes of two subarrays to be merged
         int n1 = m - l + 1;
         int n2 = r - m;
@@ -44,8 +41,7 @@ public class RecursiveMergeSort {
             if (L[i] <= R[j]) {
                 arr[k] = L[i];
                 i++;
-            }
-            else {
+            } else {
                 arr[k] = R[j];
                 j++;
             }

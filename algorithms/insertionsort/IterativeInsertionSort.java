@@ -1,8 +1,5 @@
-package org.example.Algoritmi.insertionsort;
-
 public class IterativeInsertionSort {
-    void sort(int arr[])
-    {
+    void sort(int arr[]) {
         int n = arr.length;
         for (int i = 1; i < n; ++i) {
             int key = arr[i];

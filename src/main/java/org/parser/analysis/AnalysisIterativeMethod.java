@@ -1,20 +1,22 @@
-package org.example;
+package org.parser.analysis;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.parser.error.ErrorCode;
+import org.parser.error.ErrorException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import static org.example.ErrorCode.generateErrorException;
-import static org.example.FileParserUtils.getAllUserMethodList;
-import static org.example.FileParserUtils.retrieveApplicationMethods;
+import static org.parser.error.ErrorCode.generateErrorException;
+import static org.parser.file.FileParserUtils.getAllUserMethodList;
+import static org.parser.file.FileParserUtils.retrieveApplicationMethods;
 
-public class AnalysisIterativeMethod extends AnalysisMethod {
+public abstract class AnalysisIterativeMethod extends AnalysisMethod {
 
     public static File retrieveIterativeFile(List<File> files) throws ErrorException {
         return retrieveMethodFile(files, "Iterative");

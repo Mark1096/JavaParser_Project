@@ -1,4 +1,4 @@
-package org.example;
+package org.parser;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package org.example;
+package org.parser.analysis;
 
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -7,13 +7,14 @@ import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.parser.error.ErrorException;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AnalysisRecursiveMethod extends AnalysisMethod {
+public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
 
     public static File retrieveRecursiveFile(List<File> files) throws ErrorException {
         return retrieveMethodFile(files, "Recursive");

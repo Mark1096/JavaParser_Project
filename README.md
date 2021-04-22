@@ -12,8 +12,10 @@ Comando per lanciare il programma:
     4) Sostituzione metodi ricorsivi utente con corrispondenti versioni iterative [Fatto]
     
     NOTA 1:(riflettere sulla possibilità di inalterare il file utente iniziale e creare una copia con le dovute modifiche)
-    NOTA 2: Inserire possibili classi per la gestione dei controlli dei metodi
 
 ## NOTE STRUTTURA PROGETTO
 	- Il codice della tesi che sta sotto src/main/java.
 		Si occupa di analizzare file utenti/applicativo ed eventualmente di apportare modifiche al file utente/crea un nuovo file per l'utente finale
+		
+		
+NOTA IMPORTANTE: Invertire i nomi delle variabili dove "user" o "recursive" non compaiono all'inizio!		

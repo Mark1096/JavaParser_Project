@@ -1,4 +1,4 @@
-package org.example;
+package org.parser.error;
 
 import lombok.Getter;
 
