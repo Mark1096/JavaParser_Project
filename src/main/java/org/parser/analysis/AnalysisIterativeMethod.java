@@ -30,7 +30,6 @@ public abstract class AnalysisIterativeMethod extends AnalysisMethod {
         // in modo tale da mantenere invariati i nomi dei parametri della versione ricorsiva (dell'utente).
         MethodDeclaration newIterativeMethod = replaceMethodParametersName(iterative_method, userMethod);
 
-        // TODO: Rivedere discorso break nel for originario
         MethodDeclaration method = CollectionUtils.emptyIfNull(getAllUserMethodList())
                 .stream()
                 .filter(element -> StringUtils.equals(element.getDeclarationAsString(), userMethod.getDeclarationAsString()))

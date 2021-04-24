@@ -71,7 +71,7 @@ public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
         List argumentsType = new ArrayList();
         CollectionUtils.emptyIfNull(arguments)
                 .forEach(arg -> {
-                    String argument = isBinary(arg.toString());
+                    String argument = isBinary(arg.toString(), true);
                     List<VariableDeclarationExpr> methodVariables =
                             methodDeclaration.getBody().get().findAll(VariableDeclarationExpr.class);
 

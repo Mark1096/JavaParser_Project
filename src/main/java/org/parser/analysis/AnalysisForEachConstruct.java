@@ -10,7 +10,7 @@ import java.util.List;
 public class AnalysisForEachConstruct extends AnalysisMethod {
 
     private static String retrieveForEachTypeVariable(ForEachStmt forEachStmt) {
-        return forEachStmt.getVariable().asVariableDeclarationExpr().getVariable(0).getType().toString();
+        return retrieveVariableType(forEachStmt.getVariable().asVariableDeclarationExpr().getVariable(0));
     }
 
     // Metodo che confronta contemporaneamente le condizioni delle liste nel caso di ForEachStmt

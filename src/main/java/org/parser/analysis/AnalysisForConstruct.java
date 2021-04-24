@@ -1,5 +1,6 @@
 package org.parser.analysis;
 
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AssignExpr;
@@ -15,9 +16,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.parser.App.compareConditionsElements;
-import static org.parser.App.compareElementContent;
 
 public class AnalysisForConstruct extends AnalysisMethod {
 
@@ -61,11 +59,7 @@ public class AnalysisForConstruct extends AnalysisMethod {
     }
 
     private static int countForInitialization(String initialization) {
-        return StringUtils.countMatches(initialization, ",");
-    }
-
-    private static String retrieveInitializationValue(String string) {
-        return StringUtils.split(string, "=")[1].trim();
+        return countStringMatches(initialization, ",");
     }
 
     private static String retrieveForContentInitialization(NodeList<Expression> list) {
@@ -208,6 +202,30 @@ public class AnalysisForConstruct extends AnalysisMethod {
     // Metodo che garantisce che le liste non siano vuote e confronti le condizioni degli ForStmt
     public boolean checkStatementList(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         return checkNotEmptyList(user, recursive, ForStmt.class) && checkAllForCondition(user, recursive);
+    }
+
+    private static UnaryExpr retrieveUnaryExpression(Expression expression) {
+        return expression.asUnaryExpr();
+    }
+
+    private static boolean retrieveUnaryOperator(UnaryExpr userUnary, UnaryExpr recursiveUnary) {
+        return userUnary.getOperator() != recursiveUnary.getOperator();
+    }
+
+    private static AssignExpr retrieveAssignExpression(Expression expression) {
+        return expression.asAssignExpr();
+    }
+
+    private static boolean retrieveBinaryOperator(BinaryExpr userBinary, BinaryExpr recursiveBinary) {
+        return userBinary.getOperator() != recursiveBinary.getOperator();
+    }
+
+    private static boolean retrieveAssignOperator(AssignExpr userAssign, AssignExpr recursiveAssign) {
+        return userAssign.getOperator() != recursiveAssign.getOperator();
+    }
+
+    private static Expression retrieveParseExpression(String expression) {
+        return StaticJavaParser.parseExpression(expression);
     }
 
 }

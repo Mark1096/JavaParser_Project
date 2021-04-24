@@ -10,8 +10,6 @@ import org.parser.error.ErrorException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.parser.App.compareElementContent;
-
 public class AnalysisSwitchConstruct extends AnalysisMethod {
 
     private static int retrieveSwitchNumberEntries(SwitchStmt switchStmt) {
