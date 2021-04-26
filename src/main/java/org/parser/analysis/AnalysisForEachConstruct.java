@@ -13,7 +13,6 @@ public class AnalysisForEachConstruct extends AnalysisMethod {
         return retrieveVariableType(forEachStmt.getVariable().asVariableDeclarationExpr().getVariable(0));
     }
 
-    // Metodo che confronta contemporaneamente le condizioni delle liste nel caso di ForEachStmt
     private static boolean checkForEachCondition(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         List<ForEachStmt> list1 = retrieveStatementList(user, ForEachStmt.class);
         List<ForEachStmt> list2 = retrieveStatementList(recursive, ForEachStmt.class);
@@ -23,7 +22,6 @@ public class AnalysisForEachConstruct extends AnalysisMethod {
                 .anyMatch(pair -> checkElementContent(user, recursive, pair.getKey().getIterable(), pair.getValue().getIterable()));
     }
 
-    // Metodo che garantisce che le liste non siano vuote e confronti le condizioni degli ForEachStmt
     public boolean checkStatementList(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         return checkNotEmptyList(user, recursive, ForEachStmt.class) && checkForEachCondition(user, recursive);
     }

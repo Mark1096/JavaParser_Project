@@ -22,16 +22,24 @@ import static org.parser.error.ErrorCode.generateErrorException;
 
 public class FileParserUtils {
 
-    private static FileUser fileUser;
+    private static FileUser userFile;
+    private static final String inputFolder = "userCode";
+    private static final String outputFolder = "userFileConverted/";
 
     private FileParserUtils() {
     }
 
-    // Estrapolazione di tutti i metodi contenuti nella classe passata all'interno del file
-    // e salvataggio di tutti e soli i metodi ricorsivi all'interno di una lista
-    public static List<MethodDeclaration> getRecursiveUserMethodList(File userFile) throws ErrorException {
-        fileUser = new FileUser(userFile);
-        CompilationUnit cu = fileUser.getCompilationUnit();  // Analisi e salvataggio del contenuto del file
+    /**
+     * Extrapolation of all methods contained in the class passed inside the file
+     * and saving all and only the recursive methods inside a list.
+     *
+     * @param file
+     * @return List<MethodDeclaration>
+     * @throws ErrorException
+     */
+    public static List<MethodDeclaration> getRecursiveUserMethodList(File file) throws ErrorException {
+        userFile = new FileUser(file);
+        CompilationUnit cu = userFile.getCompilationUnit();
 
         return CollectionUtils.emptyIfNull(cu.findAll(MethodDeclaration.class))
                 .stream()
@@ -39,7 +47,7 @@ public class FileParserUtils {
                 .collect(Collectors.toList());
     }
 
-    public static CompilationUnit retrieveApplicationCompilationUnit(File file) throws ErrorException {
+    public static CompilationUnit retrieveCompilationUnit(File file) throws ErrorException {
         try {
             return StaticJavaParser.parse(file);
         } catch (Exception e) {
@@ -48,7 +56,7 @@ public class FileParserUtils {
     }
 
     public static CompilationUnit retrieveUserCompilationUnit() throws ErrorException {
-        return fileUser.getCompilationUnit();
+        return userFile.getCompilationUnit();
     }
 
     public static List<MethodDeclaration> getAllUserMethodList() throws ErrorException {
@@ -56,24 +64,28 @@ public class FileParserUtils {
     }
 
     public static void updateUserFile() throws ErrorException {
-        // Aggiornamento del vecchio contenuto del file utente con quello nuovo.
-        try (FileWriter fooWriter = new FileWriter(fileUser.getFile(), false)) {
+        File newFile = new File(retrieveUserFolderPath(outputFolder + userFile.getFile().getName()));
+
+        try (FileWriter fooWriter = new FileWriter(newFile, false)) {
             fooWriter.write(retrieveUserCompilationUnit().toString());
         } catch (Exception e) {
             throw generateErrorException(ErrorCode.BAD_WRITING_FILE);
         }
     }
 
+    /**
+     * Returns the list of all algorithms to be examined in the directory "algorithms".
+     *
+     * @return File[]
+     */
     public static File[] retrieveAlgorithmsToExaminedList() {
-        // Directory che contiene le versioni standard di alcuni algoritmi ricorsivi e le corrispondenti versioni iterative
         File directoryPath = new File(retrieveAlgorithmsPath());
-        // Lista di tutti gli algoritmi da esaminare all'interno della directory "Algoritmi".
         return directoryPath.listFiles();
     }
 
-    // Estrapolazione del metodo iterativo da andare a sostituire al metodo ricorsivo dell'utente.
-    public static MethodDeclaration retrieveApplicationMethods(File file) throws ErrorException {
-        return Optional.ofNullable(retrieveApplicationCompilationUnit(file).findFirst(MethodDeclaration.class))
+    public static MethodDeclaration retrieveCompilationUnitMethods(File file) throws ErrorException {
+        return Optional.ofNullable(retrieveCompilationUnit(file)
+                .findFirst(MethodDeclaration.class))
                 .get()
                 .orElseThrow(() -> generateErrorException(ErrorCode.METHODLESS_CLASS_APPLICATION));
     }
@@ -102,14 +114,14 @@ public class FileParserUtils {
 
     public static List<File> retrieveUserFileList() {
         List<File> list = new ArrayList<>();
-        listFilesForFolder(list, new File(retrieveUserFolderPath()));
+        listFilesForFolder(list, new File(retrieveUserFolderPath(inputFolder)));
         return CollectionUtils.emptyIfNull(list)
                 .stream()
                 .filter(element -> StringUtils.contains(retrieveExtensionFilename(element), "java"))
                 .collect(Collectors.toList());
     }
 
-    public static String retrieveUserFolderPath() {
-        return retrieveRootPathProject().concat("userCode");
+    public static String retrieveUserFolderPath(String folderName) {
+        return retrieveRootPathProject().concat(folderName);
     }
 }

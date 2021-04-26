@@ -199,7 +199,6 @@ public class AnalysisForConstruct extends AnalysisMethod {
                 .anyMatch(pair -> Boolean.TRUE == !checkForUpdate(user, recursive, pair));
     }
 
-    // Metodo che garantisce che le liste non siano vuote e confronti le condizioni degli ForStmt
     public boolean checkStatementList(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         return checkNotEmptyList(user, recursive, ForStmt.class) && checkAllForCondition(user, recursive);
     }

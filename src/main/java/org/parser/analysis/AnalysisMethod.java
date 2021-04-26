@@ -28,15 +28,42 @@ public abstract class AnalysisMethod {
     protected AnalysisMethod() {
     }
 
+    /**
+     * Method that ensures that the lists are not empty and compares the conditions of the constructs.
+     *
+     * @param user
+     * @param recursive
+     * @return boolean
+     * @throws ErrorException
+     */
     protected abstract boolean checkStatementList(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException;
 
     private static Expression retrieveExpression(String argument) {
         return StaticJavaParser.parseExpression(argument);
     }
 
-    protected static String isBinary(String argument, boolean isLeft) {
+    protected static String retrieveSingleArgument(Expression expression) {
+        if (!expression.asBinaryExpr().getLeft().isNameExpr()) {
+            return expression.asBinaryExpr().getRight().toString().trim();
+        }
+        return expression.asBinaryExpr().getLeft().toString().trim();
+    }
+
+    /**
+     * The method checks whether the formal parameter is of type BinaryExpr.
+     * If not, it returns the parameter supplied as input.
+     * In positive case it extrapolates from the parameter a single element, based on the value passed in the second parameter in input.
+     *
+     * @param argument
+     * @param isLeft
+     * @return String
+     */
+    protected static String isBinary(String argument, Boolean isLeft) {
         Expression expression = retrieveExpression(argument);
         if (expression.isBinaryExpr()) {
+            if (isLeft == null) {
+                return retrieveSingleArgument(expression);
+            }
             if (isLeft) {
                 return expression.asBinaryExpr().getLeft().toString().trim();
             }
@@ -45,8 +72,15 @@ public abstract class AnalysisMethod {
         return argument;
     }
 
-    // Se tutti i controlli precedenti hanno dato esito positivo, si può procedere al prelevamento della versione iterativa
-    // corrispondente al metodo ricorsivo uguale al metodo dell'utente.
+    /**
+     * If all the previous controls have given positive result, it is possible to proceed to the extraction of the iterative version
+     * corresponding to the recursive method equal to the user's method.
+     *
+     * @param list
+     * @param version
+     * @return File
+     * @throws ErrorException
+     */
     protected static File retrieveMethodFile(List<File> list, String version) throws ErrorException {
         return CollectionUtils.emptyIfNull(list)
                 .stream()
@@ -92,6 +126,14 @@ public abstract class AnalysisMethod {
         return retrieveStatementList(user, classStmt).size() != retrieveStatementList(recursive, classStmt).size();
     }
 
+    /**
+     * Check that the same number of constructs is used in both methods.
+     *
+     * @param user
+     * @param recursive
+     * @return boolean
+     * @throws ErrorException
+     */
     public static boolean compareSizeLists(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         return compareClassLists(user, recursive, IfStmt.class) || compareClassLists(user, recursive, ForStmt.class) ||
                 compareClassLists(user, recursive, ForEachStmt.class) || compareClassLists(user, recursive, WhileStmt.class) ||
@@ -108,6 +150,15 @@ public abstract class AnalysisMethod {
                 CollectionUtils.isNotEmpty(retrieveStatementList(recursive, classStmt));
     }
 
+    /**
+     * Before checking the body of recursive methods, the signature is checked,
+     * so that a method can be rejected if it does not have the same signature,
+     * thus avoiding unnecessary checking of the whole body (method header check).
+     *
+     * @param user
+     * @param recursive
+     * @return boolean
+     */
     public static boolean checkMethodSignature(MethodDeclaration user, MethodDeclaration recursive) {
         return checkEqualSizeList(user.getParameters(), recursive.getParameters()) &&
                 user.getSignature().getParameterTypes().equals(recursive.getSignature().getParameterTypes()) &&
@@ -156,6 +207,15 @@ public abstract class AnalysisMethod {
         return Arrays.asList(splitWithLimit(condition, "&&|\\|", count));
     }
 
+    /**
+     * It is used to handle single or multiple conditions (in case there are logical operators).
+     *
+     * @param user
+     * @param recursive
+     * @param userCondition
+     * @param recursiveCondition
+     * @return boolean
+     */
     protected static boolean compareConditionsElements(MethodDeclaration user, MethodDeclaration recursive, String userCondition, String recursiveCondition) {
         int userCountAND = countStringMatches(userCondition, "&&");
         int userCountOR = countStringMatches(userCondition, "||");
@@ -176,6 +236,15 @@ public abstract class AnalysisMethod {
         return compareElementContent(user, recursive, userCondition, recursiveCondition);
     }
 
+    /**
+     * Verify that the elements passed are: method signature parameters, local variables, or simply values.
+     *
+     * @param user
+     * @param recursive
+     * @param userElement
+     * @param recursiveElement
+     * @return boolean
+     */
     private static boolean compareMethodsElements(MethodDeclaration user, MethodDeclaration recursive, String userElement, String recursiveElement) {
         int recursiveIndex = getIndexParameter(recursive, recursiveElement);
         VariableDeclarator userVariable = findVariable(user, userElement);
@@ -204,6 +273,15 @@ public abstract class AnalysisMethod {
         return StringUtils.split(string, "=")[1].trim();
     }
 
+    /**
+     * Checks the type and content of the variables of the compared methods.
+     *
+     * @param user
+     * @param recursive
+     * @param userVariable
+     * @param recursiveVariable
+     * @return boolean
+     */
     private static boolean verifyVariableContent(MethodDeclaration user, MethodDeclaration recursive, VariableDeclarator userVariable, VariableDeclarator recursiveVariable) {
         if (!StringUtils.equals(retrieveVariableType(userVariable), retrieveVariableType(recursiveVariable))) {
             return false;
@@ -217,6 +295,14 @@ public abstract class AnalysisMethod {
         return variable.getType().toString();
     }
 
+    /**
+     * Returns the index of the parameter passed as input to this method from the parameter list extracted from the method signature.
+     * Returns -1 in case the parameter passed in is not actually a parameter in the signature of the method being parsed.
+     *
+     * @param method
+     * @param element
+     * @return int
+     */
     private static int getIndexParameter(MethodDeclaration method, String element) {
         for (int i = 0; i < method.getParameters().size(); i++) {
             if (method.getParameter(i).getNameAsString().equals(element))
@@ -225,6 +311,13 @@ public abstract class AnalysisMethod {
         return -1;
     }
 
+    /**
+     * Returns the entire declaration of the local variable to the method if it is found within the method, otherwise returns null.
+     *
+     * @param method
+     * @param element
+     * @return VariableDeclarator
+     */
     private static VariableDeclarator findVariable(MethodDeclaration method, String element) {
         return CollectionUtils.emptyIfNull(method.findAll(VariableDeclarator.class))
                 .stream()
@@ -237,6 +330,16 @@ public abstract class AnalysisMethod {
         return expression.asArrayAccessExpr();
     }
 
+    /**
+     * Checks the arrays passed in, comparing both the array itself (by taking its name and looking for its declaration within the method) and the indices passed in.
+     * It will return false if the declarations of the two arrays or the indices passed to them are different.
+     *
+     * @param user
+     * @param recursive
+     * @param userElement
+     * @param recursiveElement
+     * @return boolean
+     */
     private static boolean verifyArrayContent(MethodDeclaration user, MethodDeclaration recursive, Expression userElement, Expression recursiveElement) {
         ArrayAccessExpr userAccess = retrieveArrayAccessExpression(userElement);
         ArrayAccessExpr recursiveAccess = retrieveArrayAccessExpression(recursiveElement);
@@ -247,7 +350,7 @@ public abstract class AnalysisMethod {
         }
         if (!(compareElementContent(user, recursive,
                 userAccess.getIndex().toString(), recursiveAccess.getIndex().toString()))) {
-            System.out.println("Errore negli indici passati agli array!");
+            System.out.println("Error in indexes passed to arrays!");
             return false;
         }
 
@@ -258,18 +361,28 @@ public abstract class AnalysisMethod {
         return expression.asFieldAccessExpr();
     }
 
+    /**
+     * Checks in case the elements are of type: "array.length", then checks both the element calling the field and the field itself.
+     * Returns false in case one of the two is different between methods.
+     *
+     * @param user
+     * @param recursive
+     * @param userElement
+     * @param recursiveElement
+     * @return boolean
+     */
     private static boolean verifyFieldAccessContent(MethodDeclaration user, MethodDeclaration recursive,
                                                     Expression userElement, Expression recursiveElement) {
         FieldAccessExpr userAccess = retrieveFieldAccessExpression(userElement);
         FieldAccessExpr recursiveAccess = retrieveFieldAccessExpression(recursiveElement);
         if (!(compareMethodsElements(user, recursive,
                 userAccess.getScope().toString(), recursiveAccess.getScope().toString()))) {
-            System.out.println("Elementi di FieldAccessExpr diversi!");
+            System.out.println("Different FieldAccessExpr elements!");
             return false;
         }
         if (!(compareMethodsElements(user, recursive,
                 userAccess.getNameAsString(), recursiveAccess.getNameAsString()))) {
-            System.out.println("FieldAccessExpr diversi!");
+            System.out.println("Different FieldAccessExpr!");
             return false;
         }
         return true;
@@ -279,6 +392,14 @@ public abstract class AnalysisMethod {
         return expression.asMethodCallExpr();
     }
 
+    /**
+     * Checks whether there is an element that invokes it or not before the method call, such as: list.size(),
+     * where list is the name of a list and size() is the method call that lets you know the size of the list.
+     * Returns false if one of them has an element that invokes the method and the other does not.
+     *
+     * @param expression
+     * @return boolean
+     */
     private static boolean checkIsPresentScope(Expression expression) {
         return retrieveMethodCallExpr(expression).getScope().isPresent();
     }
@@ -294,20 +415,20 @@ public abstract class AnalysisMethod {
     private static boolean checkMethodCallCases(MethodDeclaration user, MethodDeclaration recursive,
                                                 Expression userExpression, Expression recursiveExpression) {
         if (checkIsPresentScope(userExpression) != checkIsPresentScope(recursiveExpression)) {
-            System.out.println("Scope non presente in entrambi i MethodCall!");
+            System.out.println("Scope not present in both MethodCalls!");
             return false;
         }
 
         if (checkIsPresentScope(userExpression) && checkIsPresentScope(recursiveExpression)) {
             if (!compareElementContent(user, recursive, retrieveScope(userExpression), retrieveScope(recursiveExpression))) {
-                System.out.println("Scope diversi nel confronto tra MethodCallExpr!");
+                System.out.println("Different scopes when comparing MethodCallExpr!");
                 return false;
             }
         }
 
         if (!StringUtils.equals(retrieveMethodCallExpr(userExpression).getNameAsString(),
                 retrieveMethodCallExpr(recursiveExpression).getNameAsString())) {
-            System.out.println("Nomi di metodi diversi nelle MethodCallExpr!");
+            System.out.println("Different method names in MethodCallExpr!");
             return false;
         }
 
@@ -315,7 +436,7 @@ public abstract class AnalysisMethod {
         NodeList<Expression> recursiveList = retrieveMethodCallArguments(recursiveExpression);
 
         if (userList.size() != recursiveList.size()) {
-            System.out.println("Numero diverso di argomenti nelle MethodCallExpr!");
+            System.out.println("Different number of arguments in MethodCallExpr!");
             return false;
         }
 
@@ -354,7 +475,7 @@ public abstract class AnalysisMethod {
         }
 
         if (!StringUtils.equals(userVariable, recursiveVariable)) {
-            System.out.println("Compare value variable!");
+            System.out.println("Error in the comparison between the values of the variables");
             return false;
         }
         return true;
@@ -364,7 +485,7 @@ public abstract class AnalysisMethod {
                                             Expression userExpression, Expression recursiveExpression) {
         if (retrieveBinaryExpression(userExpression).getOperator() !=
                 retrieveBinaryExpression(recursiveExpression).getOperator()) {
-            System.out.println("Different operator");
+            System.out.println("Different operator!");
             return false;
         }
 
@@ -377,6 +498,15 @@ public abstract class AnalysisMethod {
                 isBinary(recursiveExpression.toString(), false));
     }
 
+    /**
+     * Fundamental method for comparing the elements to be analyzed.
+     *
+     * @param user
+     * @param recursive
+     * @param userVariable
+     * @param recursiveVariable
+     * @return boolean
+     */
     protected static boolean compareElementContent(MethodDeclaration user, MethodDeclaration recursive,
                                                    String userVariable, String recursiveVariable) {
         Expression userExpression = retrieveExpression(userVariable);

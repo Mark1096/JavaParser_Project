@@ -14,7 +14,7 @@ import java.util.List;
 
 import static org.parser.error.ErrorCode.generateErrorException;
 import static org.parser.file.FileParserUtils.getAllUserMethodList;
-import static org.parser.file.FileParserUtils.retrieveApplicationMethods;
+import static org.parser.file.FileParserUtils.retrieveCompilationUnitMethods;
 
 public abstract class AnalysisIterativeMethod extends AnalysisMethod {
 
@@ -24,10 +24,7 @@ public abstract class AnalysisIterativeMethod extends AnalysisMethod {
 
     public static void replaceRecursiveWithIterativeMethod(List<File> files, MethodDeclaration userMethod) throws ErrorException, FileNotFoundException {
         File iterativePath = retrieveIterativeFile(files);
-        MethodDeclaration iterative_method = retrieveApplicationMethods(iterativePath);
-
-        // Prima di sostituire il metodo iterativo con quello ricorsivo (dell'utente), viene richiamato il metodo sottostante,
-        // in modo tale da mantenere invariati i nomi dei parametri della versione ricorsiva (dell'utente).
+        MethodDeclaration iterative_method = retrieveCompilationUnitMethods(iterativePath);
         MethodDeclaration newIterativeMethod = replaceMethodParametersName(iterative_method, userMethod);
 
         MethodDeclaration method = CollectionUtils.emptyIfNull(getAllUserMethodList())
@@ -40,14 +37,17 @@ public abstract class AnalysisIterativeMethod extends AnalysisMethod {
         method.setBody(newIterativeMethod.getBody().get().asBlockStmt());
     }
 
-    // Fa in modo di sostituire alla versione iterativa (da restituire all'utente) tutti i nomi dei parametri formali
-    // in modo tale da mantenere i nomi scelti dall'utente nella sua versione ricorsiva. Chiaramente i nomi vengono sostituiti
-    // nella versione iterativa sia nella firma del metodo sia nel corpo del metodo, dove vengono utilizzati.
+    /**
+     * Before replacing the iterative method with the recursive (user's) method, the underlying method is called
+     * so that the parameter names of the recursive (user's) version remain unchanged.
+     *
+     * @param iterativeMethod
+     * @param userMethod
+     * @return MethodDeclaration
+     */
     public static MethodDeclaration replaceMethodParametersName(MethodDeclaration iterativeMethod, MethodDeclaration userMethod) {
         String bodyMethod = iterativeMethod.toString();
 
-        // Ciclo che permette di prelevare ogni singolo parametro dalla firma del metodo iterativo e sostituirlo con il
-        // nome del parametro scelto dall'utente nella sua versione ricorsiva.
         for (int i = 0; i < iterativeMethod.getParameters().size(); i++) {
             Parameter iterativeParameter = iterativeMethod.getParameter(i);
             Parameter userParameter = userMethod.getParameter(i);

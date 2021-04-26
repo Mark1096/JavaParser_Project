@@ -9,8 +9,6 @@
     <version>1.0-SNAPSHOT</version>
 
     <name>JavaParser_Project</name>
-    <!-- FIXME change it to the project's website -->
-    <url>http://www.example.com</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -30,7 +28,6 @@
             <artifactId>javaparser-symbol-solver-core</artifactId>
             <version>3.18.0</version>
         </dependency>
-        <!-- Dipendenza per la libreria StringUtils -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>

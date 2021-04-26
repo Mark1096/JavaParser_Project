@@ -16,29 +16,43 @@ import java.util.stream.Collectors;
 
 public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
 
+    /**
+     * It takes the file containing only the recursive version of the algorithm to be compared with the user's one.
+     *
+     * @param files
+     * @return File
+     * @throws ErrorException
+     */
     public static File retrieveRecursiveFile(List<File> files) throws ErrorException {
         return retrieveMethodFile(files, "Recursive");
     }
 
-    // Restituisce tutti e soli i metodi ricorsivi che vengono trovati all'interno del corpo del metodo passato in input
+    /**
+     * Returns the recursive method call that is found within the body of the method passed in, null otherwise.
+     *
+     * @param methodDeclaration
+     * @return MethodCallExpr
+     */
     public static MethodCallExpr getRecursiveMethodCall(MethodDeclaration methodDeclaration) {
-        // Estrapola tutte le chiamate a metodi che riesce a trovare nel corpo del metodo
         List<MethodCallExpr> listMethodCall = methodDeclaration.findAll(MethodCallExpr.class);
-        // Ciclo che itera per ogni chiamata a metodo trovato
-        for (MethodCallExpr method : listMethodCall) {
-            NameExpr nameExpr = method.getNameAsExpression();   // nome della chiamata a metodo corrente
-            NodeList arguments = method.getArguments(); // numero di argomenti della chiamata a metodo corrente
 
-            // Verifica che il nome della chiamata a metodo trovato sia uguale a quello della firma del metodo.
-            // Inoltre controlla anche che il numero di parametri passati ai metodi sia uguale
+        for (MethodCallExpr method : listMethodCall) {
+            NameExpr nameExpr = method.getNameAsExpression();
+            NodeList arguments = method.getArguments();
+
             if (methodDeclaration.getNameAsExpression().equals(nameExpr) &&
                     methodDeclaration.getParameters().size() == arguments.size()) {
 
-                List parametersType = methodDeclaration.getSignature().getParameterTypes(); // Lista dei tipi dei parametri della firma del metodo
+                List parametersType = methodDeclaration.getSignature().getParameterTypes();
                 List argumentsType = retrieveArgumentsType(arguments, methodDeclaration, parametersType);
+
+                if (parametersType.size() != argumentsType.size()) {
+                    System.out.println("The arguments of the recursive call can only be local variables or formal parameters!");
+                    return null;
+                }
+
                 boolean sameParameters = true;
 
-                // Verifica se i tipi ricavati dagli argomenti della chiamata sono uguali a quelli passati nella firma del metodo (viene considerato anche l'ordine con il quale sono passati)
                 for (int i = 0; i < parametersType.size(); i++) {
                     if (!(StringUtils.equals(parametersType.get(i).toString(), argumentsType.get(i).toString()))) {
                         sameParameters = false;
@@ -46,9 +60,6 @@ public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
                     }
                 }
 
-                // Se tutti i controlli hanno dato esito significa che tutti i tipi degli argomenti passati
-                // alla chiamata del metodo sono corretti e ordinati allo stesso modo dei parametri passati
-                // nella firma del metodo, quindi il metodo è effettivamente ricorsivo.
                 if (sameParameters) {
                     return method;
                 }
@@ -57,8 +68,6 @@ public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
         return null;
     }
 
-    // Estrapolazione del tipo dell'argomento passato alla chiamata del metodo, cercando la dichiarazione della variabile (se esiste) avente lo stesso nome dell'argomento.
-    // Se il nome dell'argomento non si trova tra le variabili locali, apparterrà sicuramente ad uno dei parametri passati nella firma del metodo
     private static List<VariableDeclarationExpr> retrieveMethodArgumentsList(List<VariableDeclarationExpr> methodVariables, String argument) {
         return CollectionUtils.emptyIfNull(methodVariables)
                 .stream()
@@ -66,12 +75,20 @@ public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
                 .collect(Collectors.toList());
     }
 
-    // TODO: sistemare questo metodo, considerando il caso nel quale venga passata una costante come argomento della chiamata (al momento fa crashare il programma)
+    /**
+     * Returns the type of the arguments to the method call, doing a name search between the current argument
+     * and the local variables or formal parameters (in case you don't match the former).
+     *
+     * @param arguments
+     * @param methodDeclaration
+     * @param parametersType
+     * @return List
+     */
     private static List retrieveArgumentsType(NodeList arguments, MethodDeclaration methodDeclaration, List parametersType) {
         List argumentsType = new ArrayList();
         CollectionUtils.emptyIfNull(arguments)
                 .forEach(arg -> {
-                    String argument = isBinary(arg.toString(), true);
+                    String argument = isBinary(arg.toString(), null);
                     List<VariableDeclarationExpr> methodVariables =
                             methodDeclaration.getBody().get().findAll(VariableDeclarationExpr.class);
 
@@ -80,13 +97,6 @@ public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
                             .findFirst()
                             .map(element -> argumentsType.add(element.getVariable(0).getType()));
 
-                    // Verifica se l'argomento corrente sia già stato riconosciuto come variabile oppure no.
-                    // Nel primo caso il controllo sottostante darà esito negativo e non verrà controllato
-                    // se effettivamente l'argomento corrente possa essere un parametro perché già è stato
-                    // riconosciuto come variabile e preso il suo tipo. Nel secondo caso bisogna andare a controllare
-                    // se l'argomento corrente (non essendo una variabile locale) sia un parametro della firma del metodo
-                    // e in caso positivo prelevare il suo tipo.
-                    // Solo nel secondo caso si entra nella condizione e si verifica il corpo.
                     if (argumentsType.size() == arguments.indexOf(arg)) {
                         for (int i = 0; i < methodDeclaration.getParameters().size(); i++) {
                             if (methodDeclaration.getParameter(i).getNameAsString().equals(argument)) {

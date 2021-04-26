@@ -1,21 +1,21 @@
 # JavaParser_Project
 
-## Building
+### Introduction:
 
-Comando per lanciare il programma: 
-    - mvn clean compile install && cd target && java -jar JavaParser_Project-1.0-SNAPSHOT-jar-with-dependencies.jar && cd ..
+The goal of this thesis is to analyze a Java file containing a class and its methods, check which of them are recursive, and replace the recursive versions, known to the program, with iterative ones, through a series of specific and detailed checks.
 
-## Lista obiettivi
-    1) Gestione file (lettura, scrittura) [Fatto]
-    2) Analisi metodi della classe utente [Fatto]
-    3) Matching tra algoritmo utente e algoritmo applicativo
-    4) Sostituzione metodi ricorsivi utente con corrispondenti versioni iterative [Fatto]
-    
-    NOTA 1:(riflettere sulla possibilità di inalterare il file utente iniziale e creare una copia con le dovute modifiche)
+### Technologies used:
+- Java8
+- Maven
 
-## NOTE STRUTTURA PROGETTO
-	- Il codice della tesi che sta sotto src/main/java.
-		Si occupa di analizzare file utenti/applicativo ed eventualmente di apportare modifiche al file utente/crea un nuovo file per l'utente finale
-		
-		
-NOTA IMPORTANTE: Invertire i nomi delle variabili dove "user" o "recursive" non compaiono all'inizio!		
+### Building
+
+Run the following commands from the project root: 
+- mvn clean compile install 
+
+### Execution
+- cd target 
+- java -jar JavaParser_Project-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+### Author
+Marco Raciti (GitHub reference: www.github.com/Mark1096)

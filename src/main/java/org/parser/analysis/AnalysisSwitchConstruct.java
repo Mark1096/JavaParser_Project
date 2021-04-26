@@ -55,7 +55,6 @@ public class AnalysisSwitchConstruct extends AnalysisMethod {
         return false;
     }
 
-    // Metodo che confronta contemporaneamente le condizioni delle liste nel caso di SwitchStmt
     private static boolean checkSwitchCondition(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         List<Pair<SwitchStmt, SwitchStmt>> result = checkSwitchProperties(user, recursive);
         if (result.isEmpty()) {
@@ -65,7 +64,6 @@ public class AnalysisSwitchConstruct extends AnalysisMethod {
                 .anyMatch(pair -> Boolean.TRUE == checkSwitchCaseContent(user, recursive, pair));
     }
 
-    // Metodo che garantisce che le liste non siano vuote e confronti le condizioni degli SwitchStmt
     public boolean checkStatementList(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         return checkNotEmptyList(user, recursive, SwitchStmt.class) && checkSwitchCondition(user, recursive);
     }
