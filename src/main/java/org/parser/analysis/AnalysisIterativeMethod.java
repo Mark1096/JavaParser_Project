@@ -16,6 +16,12 @@ import static org.parser.error.ErrorCode.generateErrorException;
 import static org.parser.file.FileParserUtils.getAllUserMethodList;
 import static org.parser.file.FileParserUtils.retrieveCompilationUnitMethods;
 
+/**
+ * <h1> AnalysisIterativeMethod </h1>
+ *
+ * This class takes care of replacing the user's recursive method with the corresponding iterative version,
+ * leaving the names of the formal parameters provided by the user unchanged.
+ */
 public abstract class AnalysisIterativeMethod extends AnalysisMethod {
 
     public static File retrieveIterativeFile(List<File> files) throws ErrorException {

@@ -6,6 +6,11 @@ import org.parser.error.ErrorException;
 
 import java.util.List;
 
+/**
+ * <h1> AnalysisWhileConstruct </h1>
+ *
+ * This class analyzes everything about the iterative While construct.
+ */
 public class AnalysisWhileConstruct extends AnalysisMethod {
 
     private static boolean checkWhileCondition(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {

@@ -6,6 +6,11 @@ import org.parser.error.ErrorException;
 
 import java.util.List;
 
+/**
+ * <h1> AnalysisIfConstruct </h1>
+ *
+ * This class analyzes everything about the iterative If construct.
+ */
 public class AnalysisIfConstruct extends AnalysisMethod {
 
     private static boolean checkIfCondition(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {

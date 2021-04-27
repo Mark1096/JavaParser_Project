@@ -10,6 +10,12 @@ import org.parser.error.ErrorException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * <h1> AnalysisSwitchConstruct </h1>
+ *
+ * This class parses everything about the Switch conditional construct,
+ * providing methods that check for all cases within the construct and the provided selector.
+ */
 public class AnalysisSwitchConstruct extends AnalysisMethod {
 
     private static int retrieveSwitchNumberEntries(SwitchStmt switchStmt) {

@@ -1,5 +1,10 @@
 package org.parser;
 
+/**
+ * <h1> UserClass </h1>
+ *
+ * This class is used to test the operation of the application, providing recursive methods to be parsed and converted into the corresponding iterative versions.
+ */
 public class UserClass {
     public int x;
     private double y;

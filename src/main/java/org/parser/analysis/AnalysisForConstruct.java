@@ -17,6 +17,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * <h1> AnalysisForConstruct </h1>
+ *
+ * This class analyzes everything about the iterative For construct,
+ * providing methods that check the three states (Initialization, Condition, Update).
+ */
 public class AnalysisForConstruct extends AnalysisMethod {
 
     private static NodeList<Expression> retrieveForInitialization(ForStmt forStmt) {
