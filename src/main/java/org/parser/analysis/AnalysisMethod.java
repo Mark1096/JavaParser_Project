@@ -23,6 +23,13 @@ import java.util.stream.StreamSupport;
 import static org.parser.analysis.AnalysisRecursiveMethod.getRecursiveMethodCall;
 import static org.parser.error.ErrorCode.generateErrorException;
 
+/**
+ * <h1> AnalysisMethod </h1>
+ *
+ * This is the main class for analyzing the contents of Java files.
+ * It contains methods to check the contents of user-requested methods
+ * to ensure that the current method is convertible to the corresponding iterative version.
+ */
 public abstract class AnalysisMethod {
 
     protected AnalysisMethod() {

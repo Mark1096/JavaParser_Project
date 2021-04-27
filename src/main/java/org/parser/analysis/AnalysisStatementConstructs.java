@@ -9,6 +9,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ *
+ * <h1> AnalysisStatementConstructs </h1>
+ *
+ * This class is used to analyze all constructs used within the body of each method. It interacts directly with the main App class,
+ * providing it with the instances needed to call the methods that will handle the analysis of the user class.
+ */
 public class AnalysisStatementConstructs {
 
     public static boolean checkAllConstruct(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {

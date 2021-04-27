@@ -20,6 +20,14 @@ import java.util.stream.Collectors;
 import static org.parser.analysis.AnalysisRecursiveMethod.getRecursiveMethodCall;
 import static org.parser.error.ErrorCode.generateErrorException;
 
+/**
+ * <h1> FileParserUtils </h1>
+ *
+ * This class deals with the analysis of user and application files.
+ * It contains methods for extrapolating all and only the user's recursive methods,
+ * the recursive algorithms provided by the application,
+ * the creation of new files that will contain all the changes in the methods provided by the user's source files.
+ */
 public class FileParserUtils {
 
     private static FileUser userFile;

@@ -14,6 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * <h1> AnalysisRecursiveMethod </h1>
+ *
+ * This class takes care of searching for recursive methods within the class passed in by the user,
+ * so as to filter out only the methods needed for iterative conversion.
+ */
 public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
 
     /**

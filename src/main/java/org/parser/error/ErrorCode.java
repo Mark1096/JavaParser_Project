@@ -2,6 +2,11 @@ package org.parser.error;
 
 import lombok.Getter;
 
+/**
+ * <h1> ErrorCode </h1>
+ *
+ * It is used to handle any exceptions that may occur during program execution.
+ */
 @Getter
 public enum ErrorCode {
     MALFORMED_FILENAME_APPLICATION("Malformed filename class application"),

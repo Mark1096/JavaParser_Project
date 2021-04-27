@@ -7,6 +7,11 @@ import org.parser.error.ErrorException;
 
 import java.util.List;
 
+/**
+ * <h1> AnalysisForEachConstruct </h1>
+ *
+ * This class analyzes everything about the iterative ForEach construct.
+ */
 public class AnalysisForEachConstruct extends AnalysisMethod {
 
     private static String retrieveForEachTypeVariable(ForEachStmt forEachStmt) {
