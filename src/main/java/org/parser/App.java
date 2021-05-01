@@ -20,19 +20,18 @@ import static org.parser.file.FileParserUtils.*;
  * <b>This program is used to convert recursive methods to iterative ones.</b>
  * It analyzes one or more Java files, extracts only the recursive methods and compares them with the recursive methods contained in the application.
  * Only those that satisfy all the comparison conditions will be converted into the corresponding iterative versions.
- *
  */
 public class App {
 
     /**
      * This is the main method from which methods to analyze user files will be called.
      *
-     * @param args
-     * @throws Exception
+     * @param args the input arguments
+     * @throws Exception the exception
      */
     public static void main(String[] args) throws Exception {
 
-        for (File userFile : retrieveUserFileList()) {
+        for (File userFile : retrieveUserFilesList()) {
             List<MethodDeclaration> listUserRecursiveMethods = FileParserUtils.getRecursiveUserMethodList(userFile);
             File[] algorithmList = retrieveAlgorithmsToExaminedList();
 
@@ -41,7 +40,7 @@ public class App {
                 for (File file : algorithmList) {
                     List<File> files = new ArrayList(Arrays.asList(file.listFiles()));
 
-                    MethodDeclaration recursiveMethod = retrieveCompilationUnitMethods(retrieveRecursiveFile(files));
+                    MethodDeclaration recursiveMethod = retrieveCompilationUnitRecursiveMethod(retrieveRecursiveFile(files));
 
                     if (checkMethodSignature(userMethod, recursiveMethod)) {
 

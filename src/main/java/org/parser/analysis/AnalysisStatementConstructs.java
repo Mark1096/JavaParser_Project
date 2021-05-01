@@ -10,14 +10,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- *
  * <h1> AnalysisStatementConstructs </h1>
- *
+ * <p>
  * This class is used to analyze all constructs used within the body of each method. It interacts directly with the main App class,
  * providing it with the instances needed to call the methods that will handle the analysis of the user class.
  */
 public class AnalysisStatementConstructs {
 
+    /**
+     * It checks the correspondence between the constructs of the two methods passed in as input.
+     *
+     * @param user      the user
+     * @param recursive the recursive
+     * @return boolean boolean
+     * @throws ErrorException the error exception
+     */
     public static boolean checkAllConstruct(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         List<ConstructCreator> creator = addConstructCreator();
         List<AnalysisMethod> analysisMethods = setAllConstruct(creator);
@@ -25,6 +32,11 @@ public class AnalysisStatementConstructs {
         return iterateAllConstruct(user, recursive, analysisMethods);
     }
 
+    /**
+     * Returns a list containing all instances needed to construct objects representing the constructs.
+     *
+     * @return List<ConstructCreator>
+     */
     private static List<ConstructCreator> addConstructCreator() {
         return Arrays.asList(
                 new CreatorIfConstruct(),
@@ -35,6 +47,12 @@ public class AnalysisStatementConstructs {
         );
     }
 
+    /**
+     * Returns a list containing all instances of the constructs to be parsed.
+     *
+     * @param creatorList
+     * @return List<AnalysisMethod>
+     */
     private static List<AnalysisMethod> setAllConstruct(List<ConstructCreator> creatorList) {
         return CollectionUtils.emptyIfNull(creatorList)
                 .stream()
@@ -42,6 +60,15 @@ public class AnalysisStatementConstructs {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Analyze all required constructs.
+     *
+     * @param user
+     * @param recursive
+     * @param analysisMethods
+     * @return boolean
+     * @throws ErrorException
+     */
     private static boolean iterateAllConstruct(MethodDeclaration user, MethodDeclaration recursive, List<AnalysisMethod> analysisMethods) throws ErrorException {
         for (AnalysisMethod method : analysisMethods) {
             if (method.checkStatementList(user, recursive)) {

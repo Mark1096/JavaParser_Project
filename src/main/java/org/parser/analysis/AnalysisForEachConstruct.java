@@ -9,26 +9,48 @@ import java.util.List;
 
 /**
  * <h1> AnalysisForEachConstruct </h1>
- *
+ * <p>
  * This class analyzes everything about the iterative ForEach construct.
  */
 public class AnalysisForEachConstruct extends AnalysisMethod {
 
-    private static String retrieveForEachTypeVariable(ForEachStmt forEachStmt) {
+    /**
+     * Returns the type of the iterative element of the forEach.
+     *
+     * @param forEachStmt
+     * @return String
+     */
+    private static String retrieveForEachVariableType(ForEachStmt forEachStmt) {
         return retrieveVariableType(forEachStmt.getVariable().asVariableDeclarationExpr().getVariable(0));
     }
 
+    /**
+     * Compares the contents of the forEach conditions of the two methods passed as input and checks for a match.
+     *
+     * @param user
+     * @param recursive
+     * @return boolean
+     * @throws ErrorException
+     */
     private static boolean checkForEachCondition(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
-        List<ForEachStmt> list1 = retrieveStatementList(user, ForEachStmt.class);
-        List<ForEachStmt> list2 = retrieveStatementList(recursive, ForEachStmt.class);
+        List<ForEachStmt> list1 = retrieveStatementsList(user, ForEachStmt.class);
+        List<ForEachStmt> list2 = retrieveStatementsList(recursive, ForEachStmt.class);
 
         return iterativeListsFlow(list1.stream(), list2.stream())
-                .filter(pair -> !StringUtils.equals(retrieveForEachTypeVariable(pair.getKey()), retrieveForEachTypeVariable(pair.getValue())))
+                .filter(pair -> !StringUtils.equals(retrieveForEachVariableType(pair.getKey()), retrieveForEachVariableType(pair.getValue())))
                 .anyMatch(pair -> checkElementContent(user, recursive, pair.getKey().getIterable(), pair.getValue().getIterable()));
     }
 
+    /**
+     * Check that the lists are not empty and compares the conditions of the forEach construct.
+     *
+     * @param user      the user
+     * @param recursive the recursive
+     * @return boolean boolean
+     * @throws ErrorException the error exception
+     */
     public boolean checkStatementList(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
-        return checkNotEmptyList(user, recursive, ForEachStmt.class) && checkForEachCondition(user, recursive);
+        return checkNotEmptyLists(user, recursive, ForEachStmt.class) && checkForEachCondition(user, recursive);
     }
 
 }
