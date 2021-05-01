@@ -12,28 +12,55 @@ import java.util.stream.Collectors;
 
 /**
  * <h1> AnalysisSwitchConstruct </h1>
- *
+ * <p>
  * This class parses everything about the Switch conditional construct,
  * providing methods that check for all cases within the construct and the provided selector.
  */
 public class AnalysisSwitchConstruct extends AnalysisMethod {
 
+    /**
+     * Returns the number of cases within the Switch.
+     *
+     * @param switchStmt
+     * @return int
+     */
     private static int retrieveSwitchNumberEntries(SwitchStmt switchStmt) {
         return switchStmt.getEntries().size();
     }
 
+    /**
+     * Returns the name of the last case of the Switch passed in as input.
+     *
+     * @param switchStmt
+     * @return NodeList<Expression>
+     */
     private static NodeList<Expression> retrieveSwitchLabel(SwitchStmt switchStmt) {
         return switchStmt.getEntry(retrieveSwitchNumberEntries(switchStmt) - 1).getLabels();
     }
 
+    /**
+     * It checks if one of the two Switches passed in input contains the case "default" and the other does not.
+     *
+     * @param switch1
+     * @param switch2
+     * @return boolean
+     */
     private static boolean checkSwitchLabelEmpty(SwitchStmt switch1, SwitchStmt switch2) {
-        return checkEmptyAndNotList(retrieveSwitchLabel(switch1), retrieveSwitchLabel(switch2)) ||
-                checkEmptyAndNotList(retrieveSwitchLabel(switch2), retrieveSwitchLabel(switch1));
+        return checkEmptyAndNotLists(retrieveSwitchLabel(switch1), retrieveSwitchLabel(switch2)) ||
+                checkEmptyAndNotLists(retrieveSwitchLabel(switch2), retrieveSwitchLabel(switch1));
     }
 
+    /**
+     * Check that the conditions and Switch cases of both methods are the same.
+     *
+     * @param user
+     * @param recursive
+     * @return List<Pair<SwitchStmt, SwitchStmt>>
+     * @throws ErrorException
+     */
     private static List<Pair<SwitchStmt, SwitchStmt>> checkSwitchProperties(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
-        List<SwitchStmt> list1 = retrieveStatementList(user, SwitchStmt.class);
-        List<SwitchStmt> list2 = retrieveStatementList(recursive, SwitchStmt.class);
+        List<SwitchStmt> list1 = retrieveStatementsList(user, SwitchStmt.class);
+        List<SwitchStmt> list2 = retrieveStatementsList(recursive, SwitchStmt.class);
 
         return iterativeListsFlow(list1.stream(), list2.stream())
                 .filter(pair -> !checkElementContent(user, recursive, pair.getKey().getSelector(), pair.getValue().getSelector()))
@@ -42,15 +69,36 @@ public class AnalysisSwitchConstruct extends AnalysisMethod {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Returns the name of the case indicated by the index of the Switch passed in input.
+     *
+     * @param switchStmt
+     * @param index
+     * @return String
+     */
     private static String retrieveSwitchCaseName(SwitchStmt switchStmt, int index) {
         return switchStmt.getEntry(index).getLabels().get(0).toString();
     }
 
+    /**
+     * Returns the number of cases within the Switch, excluding the "default" case, if exists.
+     *
+     * @param pair
+     * @return int
+     */
     private static int retrieveSwitchNumberCase(Pair<SwitchStmt, SwitchStmt> pair) {
-        return checkEmptyList(retrieveSwitchLabel(pair.getKey()), retrieveSwitchLabel(pair.getValue())) ?
+        return checkEmptyLists(retrieveSwitchLabel(pair.getKey()), retrieveSwitchLabel(pair.getValue())) ?
                 retrieveSwitchNumberEntries(pair.getKey()) - 1 : retrieveSwitchNumberEntries(pair.getKey());
     }
 
+    /**
+     * Checks that all elements representing the Switch cases are the same in both methods passed in as input.
+     *
+     * @param user
+     * @param recursive
+     * @param pair
+     * @return boolean
+     */
     private static boolean checkSwitchCaseContent(MethodDeclaration user, MethodDeclaration recursive, Pair<SwitchStmt, SwitchStmt> pair) {
         for (int i = 0; i < retrieveSwitchNumberCase(pair); i++) {
             if (!compareElementContent(user, recursive,
@@ -61,6 +109,14 @@ public class AnalysisSwitchConstruct extends AnalysisMethod {
         return false;
     }
 
+    /**
+     * Compares the contents of the Switch conditions of the two methods passed as input and checks for a match.
+     *
+     * @param user
+     * @param recursive
+     * @return boolean
+     * @throws ErrorException
+     */
     private static boolean checkSwitchCondition(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         List<Pair<SwitchStmt, SwitchStmt>> result = checkSwitchProperties(user, recursive);
         if (result.isEmpty()) {
@@ -70,8 +126,16 @@ public class AnalysisSwitchConstruct extends AnalysisMethod {
                 .anyMatch(pair -> Boolean.TRUE == checkSwitchCaseContent(user, recursive, pair));
     }
 
+    /**
+     * Check that the lists are not empty and compares the conditions of the switch construct.
+     *
+     * @param user      the user
+     * @param recursive the recursive
+     * @return boolean boolean
+     * @throws ErrorException the error exception
+     */
     public boolean checkStatementList(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
-        return checkNotEmptyList(user, recursive, SwitchStmt.class) && checkSwitchCondition(user, recursive);
+        return checkNotEmptyLists(user, recursive, SwitchStmt.class) && checkSwitchCondition(user, recursive);
     }
 
 }

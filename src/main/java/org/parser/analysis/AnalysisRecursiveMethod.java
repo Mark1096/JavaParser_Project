@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 /**
  * <h1> AnalysisRecursiveMethod </h1>
- *
+ * <p>
  * This class takes care of searching for recursive methods within the class passed in by the user,
  * so as to filter out only the methods needed for iterative conversion.
  */
@@ -25,9 +25,9 @@ public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
     /**
      * It takes the file containing only the recursive version of the algorithm to be compared with the user's one.
      *
-     * @param files
-     * @return File
-     * @throws ErrorException
+     * @param files the files
+     * @return File file
+     * @throws ErrorException the error exception
      */
     public static File retrieveRecursiveFile(List<File> files) throws ErrorException {
         return retrieveMethodFile(files, "Recursive");
@@ -36,8 +36,8 @@ public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
     /**
      * Returns the recursive method call that is found within the body of the method passed in, null otherwise.
      *
-     * @param methodDeclaration
-     * @return MethodCallExpr
+     * @param methodDeclaration the method declaration
+     * @return MethodCallExpr recursive method call
      */
     public static MethodCallExpr getRecursiveMethodCall(MethodDeclaration methodDeclaration) {
         List<MethodCallExpr> listMethodCall = methodDeclaration.findAll(MethodCallExpr.class);
@@ -74,6 +74,13 @@ public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
         return null;
     }
 
+    /**
+     * Checks the list of local variable declarations whose names match those of the arguments passed in the method call.
+     *
+     * @param methodVariables
+     * @param argument
+     * @return List<VariableDeclarationExpr>
+     */
     private static List<VariableDeclarationExpr> retrieveMethodArgumentsList(List<VariableDeclarationExpr> methodVariables, String argument) {
         return CollectionUtils.emptyIfNull(methodVariables)
                 .stream()

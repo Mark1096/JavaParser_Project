@@ -9,13 +9,19 @@ import static org.parser.error.ErrorCode.generateErrorException;
 
 /**
  * <h1> FileUser </h1>
- *
+ * <p>
  * This class deals with user-supplied files.
  */
 public class FileUser {
     private CompilationUnit cu;
     private File file;
 
+    /**
+     * Instantiates a new File user.
+     *
+     * @param file the file
+     * @throws ErrorException the error exception
+     */
     public FileUser(File file) throws ErrorException {
         this.file = file;
         try {
@@ -25,10 +31,20 @@ public class FileUser {
         }
     }
 
-    public CompilationUnit getCompilationUnit() {
+    /**
+     * Returns the CompilationUnit instance of the user file.
+     *
+     * @return CompilationUnit user compilation unit
+     */
+    public CompilationUnit getUserCompilationUnit() {
         return cu;
     }
 
+    /**
+     * Returns the instance of File.
+     *
+     * @return File file
+     */
     public File getFile() {
         return file;
     }
