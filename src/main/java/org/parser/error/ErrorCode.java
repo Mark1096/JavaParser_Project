@@ -44,7 +44,7 @@ public enum ErrorCode {
      * Generate a new exception with the appropriate error message.
      *
      * @param errorCode the error code
-     * @return ErrorException error exception
+     * @return error exception
      */
     public static ErrorException generateErrorException(ErrorCode errorCode) {
         return new ErrorException(errorCode.getMessage());

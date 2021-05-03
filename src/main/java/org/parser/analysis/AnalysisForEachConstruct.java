@@ -17,8 +17,8 @@ public class AnalysisForEachConstruct extends AnalysisMethod {
     /**
      * Returns the type of the iterative element of the forEach.
      *
-     * @param forEachStmt
-     * @return String
+     * @param forEachStmt the for each stmt
+     * @return string
      */
     private static String retrieveForEachVariableType(ForEachStmt forEachStmt) {
         return retrieveVariableType(forEachStmt.getVariable().asVariableDeclarationExpr().getVariable(0));
@@ -27,10 +27,10 @@ public class AnalysisForEachConstruct extends AnalysisMethod {
     /**
      * Compares the contents of the forEach conditions of the two methods passed as input and checks for a match.
      *
-     * @param user
-     * @param recursive
+     * @param user the user
+     * @param recursive the recursive
      * @return boolean
-     * @throws ErrorException
+     * @throws ErrorException the error exception
      */
     private static boolean checkForEachCondition(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         List<ForEachStmt> list1 = retrieveStatementsList(user, ForEachStmt.class);
@@ -46,7 +46,7 @@ public class AnalysisForEachConstruct extends AnalysisMethod {
      *
      * @param user      the user
      * @param recursive the recursive
-     * @return boolean boolean
+     * @return boolean
      * @throws ErrorException the error exception
      */
     public boolean checkStatementList(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {

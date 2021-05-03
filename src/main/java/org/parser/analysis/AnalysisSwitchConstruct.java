@@ -21,7 +21,7 @@ public class AnalysisSwitchConstruct extends AnalysisMethod {
     /**
      * Returns the number of cases within the Switch.
      *
-     * @param switchStmt
+     * @param switchStmt the switch stmt
      * @return int
      */
     private static int retrieveSwitchNumberEntries(SwitchStmt switchStmt) {
@@ -31,8 +31,8 @@ public class AnalysisSwitchConstruct extends AnalysisMethod {
     /**
      * Returns the name of the last case of the Switch passed in as input.
      *
-     * @param switchStmt
-     * @return NodeList<Expression>
+     * @param switchStmt the switch stmt
+     * @return node list expression
      */
     private static NodeList<Expression> retrieveSwitchLabel(SwitchStmt switchStmt) {
         return switchStmt.getEntry(retrieveSwitchNumberEntries(switchStmt) - 1).getLabels();
@@ -41,8 +41,8 @@ public class AnalysisSwitchConstruct extends AnalysisMethod {
     /**
      * It checks if one of the two Switches passed in input contains the case "default" and the other does not.
      *
-     * @param switch1
-     * @param switch2
+     * @param switch1 the switch 1
+     * @param switch2 the switch 2
      * @return boolean
      */
     private static boolean checkSwitchLabelEmpty(SwitchStmt switch1, SwitchStmt switch2) {
@@ -53,10 +53,10 @@ public class AnalysisSwitchConstruct extends AnalysisMethod {
     /**
      * Check that the conditions and Switch cases of both methods are the same.
      *
-     * @param user
-     * @param recursive
-     * @return List<Pair<SwitchStmt, SwitchStmt>>
-     * @throws ErrorException
+     * @param user the user
+     * @param recursive the recursive
+     * @return list
+     * @throws ErrorException the error exception
      */
     private static List<Pair<SwitchStmt, SwitchStmt>> checkSwitchProperties(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         List<SwitchStmt> list1 = retrieveStatementsList(user, SwitchStmt.class);
@@ -72,9 +72,9 @@ public class AnalysisSwitchConstruct extends AnalysisMethod {
     /**
      * Returns the name of the case indicated by the index of the Switch passed in input.
      *
-     * @param switchStmt
-     * @param index
-     * @return String
+     * @param switchStmt the switch stmt
+     * @param index the index
+     * @return string
      */
     private static String retrieveSwitchCaseName(SwitchStmt switchStmt, int index) {
         return switchStmt.getEntry(index).getLabels().get(0).toString();
@@ -83,7 +83,7 @@ public class AnalysisSwitchConstruct extends AnalysisMethod {
     /**
      * Returns the number of cases within the Switch, excluding the "default" case, if exists.
      *
-     * @param pair
+     * @param pair the pair
      * @return int
      */
     private static int retrieveSwitchNumberCase(Pair<SwitchStmt, SwitchStmt> pair) {
@@ -94,9 +94,9 @@ public class AnalysisSwitchConstruct extends AnalysisMethod {
     /**
      * Checks that all elements representing the Switch cases are the same in both methods passed in as input.
      *
-     * @param user
-     * @param recursive
-     * @param pair
+     * @param user the user
+     * @param recursive the recursive
+     * @param pair the pair
      * @return boolean
      */
     private static boolean checkSwitchCaseContent(MethodDeclaration user, MethodDeclaration recursive, Pair<SwitchStmt, SwitchStmt> pair) {
@@ -112,10 +112,10 @@ public class AnalysisSwitchConstruct extends AnalysisMethod {
     /**
      * Compares the contents of the Switch conditions of the two methods passed as input and checks for a match.
      *
-     * @param user
-     * @param recursive
+     * @param user the user
+     * @param recursive the recursive
      * @return boolean
-     * @throws ErrorException
+     * @throws ErrorException the error exception
      */
     private static boolean checkSwitchCondition(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         List<Pair<SwitchStmt, SwitchStmt>> result = checkSwitchProperties(user, recursive);
@@ -131,7 +131,7 @@ public class AnalysisSwitchConstruct extends AnalysisMethod {
      *
      * @param user      the user
      * @param recursive the recursive
-     * @return boolean boolean
+     * @return boolean
      * @throws ErrorException the error exception
      */
     public boolean checkStatementList(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {

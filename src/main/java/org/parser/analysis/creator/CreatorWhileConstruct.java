@@ -13,7 +13,7 @@ public class CreatorWhileConstruct implements ConstructCreator {
     /**
      * This method returns an instance of the AnalysisMethod class, namely AnalysisWhileConstruct.
      *
-     * @return AnalysisMethod
+     * @return analysisMethod
      */
     public AnalysisMethod getConstruct() {
         return new AnalysisWhileConstruct();

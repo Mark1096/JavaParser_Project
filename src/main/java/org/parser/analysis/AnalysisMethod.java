@@ -43,7 +43,7 @@ public abstract class AnalysisMethod {
      *
      * @param user      the user
      * @param recursive the recursive
-     * @return boolean boolean
+     * @return boolean
      * @throws ErrorException the error exception
      */
     protected abstract boolean checkStatementList(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException;
@@ -51,8 +51,8 @@ public abstract class AnalysisMethod {
     /**
      * Restituisce un'espressione dalla conversione della stringa in input.
      *
-     * @param argument
-     * @return Expression
+     * @param argument the argument
+     * @return expression
      */
     private static Expression retrieveExpression(String argument) {
         return StaticJavaParser.parseExpression(argument);
@@ -63,7 +63,7 @@ public abstract class AnalysisMethod {
      * If the left element is of type NameExpr it returns it, otherwise it returns the right one.
      *
      * @param expression the expression
-     * @return String string
+     * @return string
      */
     protected static String retrieveSingleArgument(Expression expression) {
         if (!expression.asBinaryExpr().getLeft().isNameExpr()) {
@@ -79,7 +79,7 @@ public abstract class AnalysisMethod {
      *
      * @param argument the argument
      * @param isLeft   the is left
-     * @return String string
+     * @return string
      */
     protected static String isBinary(String argument, Boolean isLeft) {
         Expression expression = retrieveExpression(argument);
@@ -101,7 +101,7 @@ public abstract class AnalysisMethod {
      *
      * @param list    the list
      * @param version the version
-     * @return File file
+     * @return file
      * @throws ErrorException the error exception
      */
     protected static File retrieveMethodFile(List<File> list, String version) throws ErrorException {
@@ -119,7 +119,7 @@ public abstract class AnalysisMethod {
      * @param <B> the type parameter
      * @param as  the as
      * @param bs  the bs
-     * @return stream stream
+     * @return stream
      */
     protected static <A, B> Stream<Pair<A, B>> iterativeListsFlow(Stream<A> as, Stream<B> bs) {
         Iterator<A> i1 = as.iterator();
@@ -139,9 +139,9 @@ public abstract class AnalysisMethod {
     /**
      * Returns the body of the method passed in as input.
      *
-     * @param method
-     * @return BlockStmt
-     * @throws ErrorException
+     * @param method the method
+     * @return block stmt
+     * @throws ErrorException the error exception
      */
     private static BlockStmt retrieveBodyMethod(MethodDeclaration method) throws ErrorException {
         return Optional.ofNullable(method.findFirst(BlockStmt.class))
@@ -154,7 +154,7 @@ public abstract class AnalysisMethod {
      *
      * @param method    the method
      * @param classStmt the class stmt
-     * @return List list
+     * @return list
      * @throws ErrorException the error exception
      */
     protected static List retrieveStatementsList(MethodDeclaration method, Class classStmt) throws ErrorException {
@@ -168,7 +168,7 @@ public abstract class AnalysisMethod {
      * @param recursive the recursive
      * @param exp1      the exp 1
      * @param exp2      the exp 2
-     * @return boolean boolean
+     * @return boolean
      */
     protected static boolean checkConditionsElements(MethodDeclaration user, MethodDeclaration recursive, Expression exp1, Expression exp2) {
         return Boolean.TRUE == !compareConditionsElements(user, recursive, exp1.toString(), exp2.toString());
@@ -181,7 +181,7 @@ public abstract class AnalysisMethod {
      * @param recursive the recursive
      * @param exp1      the exp 1
      * @param exp2      the exp 2
-     * @return boolean boolean
+     * @return boolean
      */
     protected static boolean checkElementContent(MethodDeclaration user, MethodDeclaration recursive, Expression exp1, Expression exp2) {
         return Boolean.TRUE == !compareElementContent(user, recursive, exp1.toString(), exp2.toString());
@@ -191,11 +191,11 @@ public abstract class AnalysisMethod {
      * It compares the list size of the user method with that of the program method
      * to see if the number of constructs is different from each other.
      *
-     * @param user
-     * @param recursive
-     * @param classStmt
+     * @param user the user
+     * @param recursive the recursive
+     * @param classStmt the class stmt
      * @return boolean
-     * @throws ErrorException
+     * @throws ErrorException the error exception
      */
     private static boolean compareListSizeClass(MethodDeclaration user, MethodDeclaration recursive, Class classStmt) throws ErrorException {
         return retrieveStatementsList(user, classStmt).size() != retrieveStatementsList(recursive, classStmt).size();
@@ -206,7 +206,7 @@ public abstract class AnalysisMethod {
      *
      * @param user      the user
      * @param recursive the recursive
-     * @return boolean boolean
+     * @return boolean
      * @throws ErrorException the error exception
      */
     public static boolean compareSizeLists(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
@@ -221,7 +221,7 @@ public abstract class AnalysisMethod {
      *
      * @param list1 the list 1
      * @param list2 the list 2
-     * @return boolean boolean
+     * @return boolean
      */
     protected static boolean checkEmptyLists(NodeList list1, NodeList list2) {
         return CollectionUtils.isEmpty(list1) && CollectionUtils.isEmpty(list2);
@@ -233,7 +233,7 @@ public abstract class AnalysisMethod {
      * @param user      the user
      * @param recursive the recursive
      * @param classStmt the class stmt
-     * @return boolean boolean
+     * @return boolean
      * @throws ErrorException the error exception
      */
     protected static boolean checkNotEmptyLists(MethodDeclaration user, MethodDeclaration recursive, Class classStmt) throws ErrorException {
@@ -248,7 +248,7 @@ public abstract class AnalysisMethod {
      *
      * @param user      the user
      * @param recursive the recursive
-     * @return boolean boolean
+     * @return boolean
      */
     public static boolean checkMethodSignature(MethodDeclaration user, MethodDeclaration recursive) {
         return checkEqualSizeLists(user.getParameters(), recursive.getParameters()) &&
@@ -261,7 +261,7 @@ public abstract class AnalysisMethod {
      *
      * @param list1 the list 1
      * @param list2 the list 2
-     * @return boolean boolean
+     * @return boolean
      */
     protected static boolean checkEqualSizeLists(NodeList list1, NodeList list2) {
         return (list1 != null && list2 != null) && list1.size() == list2.size();
@@ -272,7 +272,7 @@ public abstract class AnalysisMethod {
      *
      * @param list1 the list 1
      * @param list2 the list 2
-     * @return boolean boolean
+     * @return boolean
      */
     protected static boolean checkEmptyAndNotLists(NodeList list1, NodeList list2) {
         return CollectionUtils.isEmpty(list1) && CollectionUtils.isNotEmpty(list2);
@@ -295,7 +295,7 @@ public abstract class AnalysisMethod {
      *
      * @param user      the user
      * @param recursive the recursive
-     * @return the boolean
+     * @return boolean
      */
     protected static boolean checkDifferentMetaModel(Expression user, Expression recursive) {
         return user.getMetaModel() != recursive.getMetaModel();
@@ -305,7 +305,7 @@ public abstract class AnalysisMethod {
      * Retrieve string expression string.
      *
      * @param expression the expression
-     * @return the string
+     * @return string
      */
     protected static String retrieveStringExpression(Expression expression) {
         return expression.toString().trim();
@@ -326,7 +326,7 @@ public abstract class AnalysisMethod {
      *
      * @param user      the user
      * @param recursive the recursive
-     * @return the boolean
+     * @return boolean
      */
     public static boolean checkRecursiveCallArguments(MethodDeclaration user, MethodDeclaration recursive) {
         NodeList<Expression> userArgumentsList = getRecursiveMethodCall(user).getArguments();
@@ -341,7 +341,7 @@ public abstract class AnalysisMethod {
      *
      * @param initialization the initialization
      * @param matcher        the matcher
-     * @return the int
+     * @return int
      */
     protected static int countStringMatches(String initialization, String matcher) {
         return StringUtils.countMatches(initialization, matcher);
@@ -350,10 +350,10 @@ public abstract class AnalysisMethod {
     /**
      *  Performs a split of logical operators on the condition passed in as input and returns all conditions within a list.
      *
-     * @param condition
-     * @param countAND
-     * @param countOR
-     * @return List<String>
+     * @param condition the condition
+     * @param countAND the count and
+     * @param countOR the count or
+     * @return list
      */
     private static List<String> retrieveConditionsList(String condition, int countAND, int countOR) {
         int count = countAND + (countOR * 2) + 1;
@@ -367,7 +367,7 @@ public abstract class AnalysisMethod {
      * @param recursive          the recursive
      * @param userCondition      the user condition
      * @param recursiveCondition the recursive condition
-     * @return boolean boolean
+     * @return boolean
      */
     protected static boolean compareConditionsElements(MethodDeclaration user, MethodDeclaration recursive, String userCondition, String recursiveCondition) {
         int userCountAND = countStringMatches(userCondition, "&&");
@@ -392,10 +392,10 @@ public abstract class AnalysisMethod {
     /**
      * Verify that the elements passed are: method signature parameters, local variables, or simply values.
      *
-     * @param user
-     * @param recursive
-     * @param userElement
-     * @param recursiveElement
+     * @param user the user
+     * @param recursive the recursive
+     * @param userElement the user element
+     * @param recursiveElement the recursive element
      * @return boolean
      */
     private static boolean compareMethodsElements(MethodDeclaration user, MethodDeclaration recursive, String userElement, String recursiveElement) {
@@ -426,7 +426,7 @@ public abstract class AnalysisMethod {
      * Retrieve initialization value string.
      *
      * @param string the string
-     * @return the string
+     * @return string
      */
     protected static String retrieveInitializationValue(String string) {
         return StringUtils.split(string, "=")[1].trim();
@@ -435,10 +435,10 @@ public abstract class AnalysisMethod {
     /**
      * Checks the type and content of the variables of the compared methods.
      *
-     * @param user
-     * @param recursive
-     * @param userVariable
-     * @param recursiveVariable
+     * @param user the user
+     * @param recursive the recursive
+     * @param userVariable the user variable
+     * @param recursiveVariable the recursive variable
      * @return boolean
      */
     private static boolean verifyVariableContent(MethodDeclaration user, MethodDeclaration recursive, VariableDeclarator userVariable, VariableDeclarator recursiveVariable) {
@@ -454,7 +454,7 @@ public abstract class AnalysisMethod {
      * Retrieve variable type string.
      *
      * @param variable the variable
-     * @return the string
+     * @return string
      */
     protected static String retrieveVariableType(VariableDeclarator variable) {
         return variable.getType().toString();
@@ -464,8 +464,8 @@ public abstract class AnalysisMethod {
      * Returns the index of the parameter passed as input to this method from the parameter list extracted from the method signature.
      * Returns -1 in case the parameter passed in is not actually a parameter in the signature of the method being parsed.
      *
-     * @param method
-     * @param element
+     * @param method the method
+     * @param element the element
      * @return int
      */
     private static int getIndexParameter(MethodDeclaration method, String element) {
@@ -479,9 +479,9 @@ public abstract class AnalysisMethod {
     /**
      * Returns the entire declaration of the local variable to the method if it is found within the method, otherwise returns null.
      *
-     * @param method
-     * @param element
-     * @return VariableDeclarator
+     * @param method the method
+     * @param element the element
+     * @return variable declarator
      */
     private static VariableDeclarator findVariable(MethodDeclaration method, String element) {
         return CollectionUtils.emptyIfNull(method.findAll(VariableDeclarator.class))
@@ -494,8 +494,8 @@ public abstract class AnalysisMethod {
     /**
      * Retrieve array access expression array access expr.
      *
-     * @param expression
-     * @return ArrayAccessExpr
+     * @param expression the expression
+     * @return array access expr
      */
     private static ArrayAccessExpr retrieveArrayAccessExpression(Expression expression) {
         return expression.asArrayAccessExpr();
@@ -505,10 +505,10 @@ public abstract class AnalysisMethod {
      * Checks the arrays passed in, comparing both the array itself (by taking its name and looking for its declaration within the method) and the indices passed in.
      * It will return false if the declarations of the two arrays or the indices passed to them are different.
      *
-     * @param user
-     * @param recursive
-     * @param userElement
-     * @param recursiveElement
+     * @param user the user
+     * @param recursive the recursive
+     * @param userElement the user element
+     * @param recursiveElement the recursive element
      * @return boolean
      */
     private static boolean verifyArrayContent(MethodDeclaration user, MethodDeclaration recursive, Expression userElement, Expression recursiveElement) {
@@ -531,8 +531,8 @@ public abstract class AnalysisMethod {
     /**
      * Retrieve field access expression field access expr.
      *
-     * @param expression
-     * @return FieldAccessExpr
+     * @param expression the expression
+     * @return field access expr
      */
     private static FieldAccessExpr retrieveFieldAccessExpression(Expression expression) {
         return expression.asFieldAccessExpr();
@@ -542,10 +542,10 @@ public abstract class AnalysisMethod {
      * Checks in case the elements are of type: "array.length", then checks both the element calling the field and the field itself.
      * Returns false in case one of the two is different between methods.
      *
-     * @param user
-     * @param recursive
-     * @param userElement
-     * @param recursiveElement
+     * @param user the user
+     * @param recursive the recursive
+     * @param userElement the user element
+     * @param recursiveElement the recursive element
      * @return boolean
      */
     private static boolean verifyFieldAccessContent(MethodDeclaration user, MethodDeclaration recursive,
@@ -568,8 +568,8 @@ public abstract class AnalysisMethod {
     /**
      * Retrieve method call expression method call expr.
      *
-     * @param expression
-     * @return MethodCallExpr
+     * @param expression the expression
+     * @return method call expr
      */
     private static MethodCallExpr retrieveMethodCallExpr(Expression expression) {
         return expression.asMethodCallExpr();
@@ -580,7 +580,7 @@ public abstract class AnalysisMethod {
      * where list is the name of a list and size() is the method call that lets you know the size of the list.
      * Returns false if one of them has an element that invokes the method and the other does not.
      *
-     * @param expression
+     * @param expression the expression
      * @return boolean
      */
     private static boolean checkIsPresentScope(Expression expression) {
@@ -590,8 +590,8 @@ public abstract class AnalysisMethod {
     /**
      * Returns the arguments to the method call.
      *
-     * @param expression
-     * @return NodeList<Expression>
+     * @param expression the expression
+     * @return node list expression
      */
     private static NodeList<Expression> retrieveMethodCallArguments(Expression expression) {
         return retrieveMethodCallExpr(expression).getArguments();
@@ -600,8 +600,8 @@ public abstract class AnalysisMethod {
     /**
      * Returns the instance that calls the method.
      *
-     * @param expression
-     * @return String
+     * @param expression expression
+     * @return string
      */
     private static String retrieveScope(Expression expression) {
         return retrieveMethodCallExpr(expression).getScope().get().toString();
@@ -610,10 +610,10 @@ public abstract class AnalysisMethod {
     /**
      * Checks all instances of a method call.
      *
-     * @param user
-     * @param recursive
-     * @param userExpression
-     * @param recursiveExpression
+     * @param user the user
+     * @param recursive the recursive
+     * @param userExpression the user expression
+     * @param recursiveExpression the recursive expression
      * @return boolean
      */
     private static boolean checkMethodCallCases(MethodDeclaration user, MethodDeclaration recursive,
@@ -655,10 +655,10 @@ public abstract class AnalysisMethod {
     /**
      * Checks all non-binary cases of the elements passed in as input and compares them to each other.
      *
-     * @param user
-     * @param recursive
-     * @param userVariable
-     * @param recursiveVariable
+     * @param user the user
+     * @param recursive the recursive
+     * @param userVariable the user variable
+     * @param recursiveVariable the recursive variable
      * @return boolean
      */
     private static boolean checkNotBinaryCases(MethodDeclaration user, MethodDeclaration recursive,
@@ -697,10 +697,10 @@ public abstract class AnalysisMethod {
     /**
      * Checks all binary cases of the elements passed in as input and compares them to each other.
      *
-     * @param user
-     * @param recursive
-     * @param userExpression
-     * @param recursiveExpression
+     * @param user the user
+     * @param recursive the recursive
+     * @param userExpression the user expression
+     * @param recursiveExpression the recursive expression
      * @return boolean
      */
     private static boolean checkBinaryCases(MethodDeclaration user, MethodDeclaration recursive,
@@ -727,7 +727,7 @@ public abstract class AnalysisMethod {
      * @param recursive         the recursive
      * @param userVariable      the user variable
      * @param recursiveVariable the recursive variable
-     * @return boolean boolean
+     * @return boolean
      */
     protected static boolean compareElementContent(MethodDeclaration user, MethodDeclaration recursive,
                                                    String userVariable, String recursiveVariable) {

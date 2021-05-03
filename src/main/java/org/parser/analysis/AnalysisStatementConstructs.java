@@ -22,7 +22,7 @@ public class AnalysisStatementConstructs {
      *
      * @param user      the user
      * @param recursive the recursive
-     * @return boolean boolean
+     * @return boolean
      * @throws ErrorException the error exception
      */
     public static boolean checkAllConstruct(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
@@ -35,7 +35,7 @@ public class AnalysisStatementConstructs {
     /**
      * Returns a list containing all instances needed to construct objects representing the constructs.
      *
-     * @return List<ConstructCreator>
+     * @return list construct creator
      */
     private static List<ConstructCreator> addConstructCreator() {
         return Arrays.asList(
@@ -50,8 +50,8 @@ public class AnalysisStatementConstructs {
     /**
      * Returns a list containing all instances of the constructs to be parsed.
      *
-     * @param creatorList
-     * @return List<AnalysisMethod>
+     * @param creatorList the creator list
+     * @return list analysis method
      */
     private static List<AnalysisMethod> setAllConstruct(List<ConstructCreator> creatorList) {
         return CollectionUtils.emptyIfNull(creatorList)
@@ -63,11 +63,11 @@ public class AnalysisStatementConstructs {
     /**
      * Analyze all required constructs.
      *
-     * @param user
-     * @param recursive
-     * @param analysisMethods
+     * @param user the user
+     * @param recursive the recursive
+     * @param analysisMethods the analysis methods
      * @return boolean
-     * @throws ErrorException
+     * @throws ErrorException the error exception
      */
     private static boolean iterateAllConstruct(MethodDeclaration user, MethodDeclaration recursive, List<AnalysisMethod> analysisMethods) throws ErrorException {
         for (AnalysisMethod method : analysisMethods) {
