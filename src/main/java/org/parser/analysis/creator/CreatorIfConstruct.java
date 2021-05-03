@@ -13,7 +13,7 @@ public class CreatorIfConstruct implements ConstructCreator {
     /**
      * This method returns an instance of the AnalysisMethod class, namely AnalysisIfConstruct.
      *
-     * @return AnalysisMethod
+     * @return analysisMethod
      */
     public AnalysisMethod getConstruct() {
         return new AnalysisIfConstruct();

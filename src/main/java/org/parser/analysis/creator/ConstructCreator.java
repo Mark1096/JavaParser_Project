@@ -11,7 +11,7 @@ public interface ConstructCreator {
     /**
      * This method returns an instance of the AnalysisMethod class.
      *
-     * @return AnalysisMethod construct
+     * @return analysisMethod construct
      */
     AnalysisMethod getConstruct();
 }

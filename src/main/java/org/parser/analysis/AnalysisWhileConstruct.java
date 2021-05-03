@@ -16,10 +16,10 @@ public class AnalysisWhileConstruct extends AnalysisMethod {
     /**
      * Compares the contents of the While conditions of the two methods passed as input and checks for a match.
      *
-     * @param user
-     * @param recursive
+     * @param user the user
+     * @param recursive the recursive
      * @return boolean
-     * @throws ErrorException
+     * @throws ErrorException the error exception
      */
     private static boolean checkWhileCondition(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         List<WhileStmt> list1 = retrieveStatementsList(user, WhileStmt.class);
@@ -34,7 +34,7 @@ public class AnalysisWhileConstruct extends AnalysisMethod {
      *
      * @param user      the user
      * @param recursive the recursive
-     * @return boolean boolean
+     * @return boolean
      * @throws ErrorException the error exception
      */
     public boolean checkStatementList(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {

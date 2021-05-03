@@ -13,7 +13,7 @@ public class CreatorSwitchConstruct implements ConstructCreator {
     /**
      * This method returns an instance of the AnalysisMethod class, namely AnalysisSwitchConstruct.
      *
-     * @return AnalysisMethod
+     * @return analysisMethod
      */
     public AnalysisMethod getConstruct() {
         return new AnalysisSwitchConstruct();

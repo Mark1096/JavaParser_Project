@@ -28,8 +28,8 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Returns the initialization status of the For.
      *
-     * @param forStmt
-     * @return NodeList<Expression>
+     * @param forStmt the for stmt
+     * @return node list expression
      */
     private static NodeList<Expression> retrieveForInitialization(ForStmt forStmt) {
         return forStmt.getInitialization();
@@ -38,7 +38,7 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Checks the existence of the condition status in the For.
      *
-     * @param forStmt
+     * @param forStmt the for stmt
      * @return boolean
      */
     private static boolean checkIsPresentForCompare(ForStmt forStmt) {
@@ -48,8 +48,8 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Checks the non-existence of the condition state of both For passed in input.
      *
-     * @param forUser
-     * @param forApplication
+     * @param forUser the for user
+     * @param forApplication the for application
      * @return boolean
      */
     private static boolean checkNotExistenceForCompare(ForStmt forUser, ForStmt forApplication) {
@@ -59,8 +59,8 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Returns the update status of the For.
      *
-     * @param forStmt
-     * @return NodeList<Expression>
+     * @param forStmt the for stmt
+     * @return node list expression
      */
     private static NodeList<Expression> retrieveForUpdate(ForStmt forStmt) {
         return forStmt.getUpdate();
@@ -69,8 +69,8 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Check if one For has condition status and the other does not.
      *
-     * @param forUser
-     * @param forApplication
+     * @param forUser the for user
+     * @param forApplication the for application
      * @return boolean
      */
     private static boolean checkIsPresentAndNotForCompare(ForStmt forUser, ForStmt forApplication) {
@@ -80,7 +80,7 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Checks if all states in the For do not exist.
      *
-     * @param pair
+     * @param pair the pair
      * @return boolean
      */
     private static boolean checkForEmpty(Pair<ForStmt, ForStmt> pair) {
@@ -92,7 +92,7 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Verify that the same For state is present in one and not the other.
      *
-     * @param pair
+     * @param pair the pair
      * @return boolean
      */
     private static boolean checkForDifferentStatement(Pair<ForStmt, ForStmt> pair) {
@@ -106,9 +106,9 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Checks the presence of the For condition status and compares its elements.
      *
-     * @param user
-     * @param recursive
-     * @param pair
+     * @param user the user
+     * @param recursive the recursive
+     * @param pair the pair
      * @return boolean
      */
     private static boolean checkForCompareElement(MethodDeclaration user, MethodDeclaration recursive, Pair<ForStmt, ForStmt> pair) {
@@ -119,7 +119,7 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Count the number of iterative variables initialized in the For.
      *
-     * @param initialization
+     * @param initialization the initialization
      * @return int
      */
     private static int countForInitialization(String initialization) {
@@ -129,8 +129,8 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Returns the iterative variables initialized in the For.
      *
-     * @param list
-     * @return String
+     * @param list the list
+     * @return string
      */
     private static String retrieveForContentInitialization(NodeList<Expression> list) {
         return list.get(0).toString();
@@ -139,10 +139,10 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Compares the contents of the iterative initialized For variables of the two lists passed in as input.
      *
-     * @param user
-     * @param recursive
-     * @param userList
-     * @param recursiveList
+     * @param user the user
+     * @param recursive the recursive
+     * @param userList the user list
+     * @param recursiveList the recursive list
      * @return boolean
      */
     private static boolean compareForInitializationElement(MethodDeclaration user, MethodDeclaration recursive, List<String> userList, List<String> recursiveList) {
@@ -154,9 +154,9 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Checks the number of iterative variables initialized in the For and their contents in both For.
      *
-     * @param user
-     * @param recursive
-     * @param pair
+     * @param user the user
+     * @param recursive the recursive
+     * @param pair the pair
      * @return boolean
      */
     private static boolean checkForInitializationElements(MethodDeclaration user, MethodDeclaration recursive, Pair<ForStmt, ForStmt> pair) {
@@ -178,9 +178,9 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Checks the presence of the For initialization status and compares its elements.
      *
-     * @param user
-     * @param recursive
-     * @param pair
+     * @param user the user
+     * @param recursive the recursive
+     * @param pair the pair
      * @return boolean
      */
     private static boolean checkForInitialization(MethodDeclaration user, MethodDeclaration recursive, Pair<ForStmt, ForStmt> pair) {
@@ -190,10 +190,10 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Verify that the elements of the update state, of type UnaryExpr, are equal.
      *
-     * @param user
-     * @param recursive
-     * @param userExpression
-     * @param recursiveExpression
+     * @param user the user
+     * @param recursive the recursive
+     * @param userExpression the user expression
+     * @param recursiveExpression the recursive expression
      * @return boolean
      */
     private static boolean checkForUpdateUnaryExpression(MethodDeclaration user, MethodDeclaration recursive, Expression userExpression, Expression recursiveExpression) {
@@ -209,8 +209,8 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Returns the contents of an expression of type AssignExpr.
      *
-     * @param expression
-     * @return Expression
+     * @param expression the expression
+     * @return expression
      */
     private static Expression retrieveAssignExpressionValue(Expression expression) {
         return retrieveAssignExpression(expression).getValue();
@@ -219,10 +219,10 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Checks the content of expressions of type BinaryExpr in the For update state.
      *
-     * @param user
-     * @param recursive
-     * @param userExpression
-     * @param recursiveExpression
+     * @param user the user
+     * @param recursive the recursive
+     * @param userExpression the user expression
+     * @param recursiveExpression the recursive expression
      * @return boolean
      */
     private static boolean checkForUpdateBinaryExpression(MethodDeclaration user, MethodDeclaration recursive, Expression userExpression, Expression recursiveExpression) {
@@ -243,10 +243,10 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Checks the content of items in the For update state.
      *
-     * @param user
-     * @param recursive
-     * @param userExpression
-     * @param recursiveExpression
+     * @param user the user
+     * @param recursive the recursive
+     * @param userExpression the user expression
+     * @param recursiveExpression the recursive expression
      * @return boolean
      */
     private static boolean checkForUpdateElementContent(MethodDeclaration user, MethodDeclaration recursive, Expression userExpression, Expression recursiveExpression) {
@@ -262,10 +262,10 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Verify that the elements of the update state, of type AssignExpr, are equal.
      *
-     * @param user
-     * @param recursive
-     * @param userExpression
-     * @param recursiveExpression
+     * @param user the user
+     * @param recursive the recursive
+     * @param userExpression the user expression
+     * @param recursiveExpression the recursive expression
      * @return boolean
      */
     private static boolean checkForUpdateAssignExpression(MethodDeclaration user, MethodDeclaration recursive, Expression userExpression, Expression recursiveExpression) {
@@ -291,10 +291,10 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Checks the types of expressions possible in the For update state.
      *
-     * @param user
-     * @param recursive
-     * @param userExpression
-     * @param recursiveExpression
+     * @param user the user
+     * @param recursive the recursive
+     * @param userExpression the user expression
+     * @param recursiveExpression the recursive expression
      * @return boolean
      */
     private static boolean verifyCaseManagementForUpdate(MethodDeclaration user, MethodDeclaration recursive, Expression userExpression, Expression recursiveExpression) {
@@ -307,10 +307,10 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Check the elements of the For update status.
      *
-     * @param user
-     * @param recursive
-     * @param userList
-     * @param recursiveList
+     * @param user the user
+     * @param recursive the recursive
+     * @param userList the user list
+     * @param recursiveList the recursive list
      * @return boolean
      */
     private static boolean checkForUpdateElement(MethodDeclaration user, MethodDeclaration recursive, NodeList<Expression> userList, NodeList<Expression> recursiveList) {
@@ -323,9 +323,9 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Checks the number of iterative variables in the update state and their content in both For.
      *
-     * @param user
-     * @param recursive
-     * @param pair
+     * @param user the user
+     * @param recursive the recursive
+     * @param pair the pair
      * @return boolean
      */
     private static boolean checkForUpdateListSize(MethodDeclaration user, MethodDeclaration recursive, Pair<ForStmt, ForStmt> pair) {
@@ -341,9 +341,9 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Check that the forUpdate lists are not empty and compares the conditions of the forUpdate.
      *
-     * @param user
-     * @param recursive
-     * @param pair
+     * @param user the user
+     * @param recursive the recursive
+     * @param pair the pair
      * @return boolean
      */
     private static boolean checkForUpdate(MethodDeclaration user, MethodDeclaration recursive, Pair<ForStmt, ForStmt> pair) {
@@ -353,11 +353,11 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Compares the contents of the For conditions of the two lists passed as input and checks for a match.
      *
-     * @param user
-     * @param recursive
-     * @param list1
-     * @param list2
-     * @return
+     * @param user the user
+     * @param recursive the recursive
+     * @param list1 the list 1
+     * @param list2 the list 2
+     * @return list
      */
     private static List<Pair<ForStmt, ForStmt>> checkForCondition(MethodDeclaration user, MethodDeclaration recursive, List<ForStmt> list1, List<ForStmt> list2) {
         return iterativeListsFlow(list1.stream(), list2.stream())
@@ -371,10 +371,10 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Check that all conditions of the two methods passed in as input are equal.
      *
-     * @param user
-     * @param recursive
+     * @param user the user
+     * @param recursive the recursive
      * @return boolean
-     * @throws ErrorException
+     * @throws ErrorException the error exception
      */
     private static boolean checkAllForCondition(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         List<Pair<ForStmt, ForStmt>> result = checkForCondition(user, recursive,
@@ -392,8 +392,8 @@ public class AnalysisForConstruct extends AnalysisMethod {
      *
      * @param user      the user
      * @param recursive the recursive
-     * @return
-     * @throws ErrorException
+     * @return boolean
+     * @throws ErrorException the error exception
      */
     public boolean checkStatementList(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException {
         return checkNotEmptyLists(user, recursive, ForStmt.class) && checkAllForCondition(user, recursive);
@@ -402,8 +402,8 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Returns the expression passed in as input in the form of UnaryExpr.
      *
-     * @param expression
-     * @return UnaryExpr
+     * @param expression the expression
+     * @return unary expr
      */
     private static UnaryExpr retrieveUnaryExpression(Expression expression) {
         return expression.asUnaryExpr();
@@ -412,8 +412,8 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Compare UnaryExpr operators.
      *
-     * @param userUnary
-     * @param recursiveUnary
+     * @param userUnary the user unary
+     * @param recursiveUnary the recursive unary
      * @return boolean
      */
     private static boolean compareUnaryOperator(UnaryExpr userUnary, UnaryExpr recursiveUnary) {
@@ -423,8 +423,8 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Returns the expression passed in as input in the form of AssignExpr.
      *
-     * @param expression
-     * @return AssignExpr
+     * @param expression the expression
+     * @return assign expr
      */
     private static AssignExpr retrieveAssignExpression(Expression expression) {
         return expression.asAssignExpr();
@@ -433,8 +433,8 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Compare BinaryExpr operators.
      *
-     * @param userBinary
-     * @param recursiveBinary
+     * @param userBinary the user binary
+     * @param recursiveBinary the recursive binary
      * @return boolean
      */
     private static boolean compareBinaryOperator(BinaryExpr userBinary, BinaryExpr recursiveBinary) {
@@ -444,8 +444,8 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Compare AssignExpr operators.
      *
-     * @param userAssign
-     * @param recursiveAssign
+     * @param userAssign the user assign
+     * @param recursiveAssign the recursive assign
      * @return boolean
      */
     private static boolean compareAssignOperator(AssignExpr userAssign, AssignExpr recursiveAssign) {
@@ -455,8 +455,8 @@ public class AnalysisForConstruct extends AnalysisMethod {
     /**
      * Returns the string passed as input in the form of an expression.
      *
-     * @param expression
-     * @return Expression
+     * @param expression the expression
+     * @return expression
      */
     private static Expression retrieveParseExpression(String expression) {
         return StaticJavaParser.parseExpression(expression);

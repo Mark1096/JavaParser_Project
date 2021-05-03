@@ -28,7 +28,7 @@ public abstract class AnalysisIterativeMethod extends AnalysisMethod {
      * Returns the file containing the iterative version of the algorithm.
      *
      * @param files the files
-     * @return File file
+     * @return file
      * @throws ErrorException the error exception
      */
     public static File retrieveIterativeFile(List<File> files) throws ErrorException {
@@ -63,7 +63,7 @@ public abstract class AnalysisIterativeMethod extends AnalysisMethod {
      *
      * @param iterativeMethod the iterative method
      * @param userMethod      the user method
-     * @return MethodDeclaration method declaration
+     * @return method declaration
      */
     public static MethodDeclaration replaceMethodParametersName(MethodDeclaration iterativeMethod, MethodDeclaration userMethod) {
         String bodyMethod = iterativeMethod.toString();

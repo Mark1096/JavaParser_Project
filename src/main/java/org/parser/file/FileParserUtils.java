@@ -42,7 +42,7 @@ public class FileParserUtils {
      * and saving all and only the recursive methods inside a list.
      *
      * @param file the file
-     * @return the recursive user method list
+     * @return list method declaration
      * @throws ErrorException the error exception
      */
     public static List<MethodDeclaration> getRecursiveUserMethodList(File file) throws ErrorException {
@@ -59,7 +59,7 @@ public class FileParserUtils {
      * Returns the CompilationUnit instance of a file passed in as input.
      *
      * @param file the file
-     * @return CompilationUnit compilation unit
+     * @return compilation unit
      * @throws ErrorException the error exception
      */
     public static CompilationUnit retrieveCompilationUnit(File file) throws ErrorException {
@@ -73,7 +73,7 @@ public class FileParserUtils {
     /**
      * Returns the current CompilationUnit instance of the user file.
      *
-     * @return CompilationUnit compilation unit
+     * @return compilation unit
      */
     public static CompilationUnit retrieveUserCompilationUnit() {
         return userFile.getUserCompilationUnit();
@@ -82,7 +82,7 @@ public class FileParserUtils {
     /**
      * Returns all methods within the user file.
      *
-     * @return the all user method list
+     * @return list method declaration
      */
     public static List<MethodDeclaration> getAllUserMethodList() {
         return retrieveUserCompilationUnit().findAll(MethodDeclaration.class);
@@ -111,7 +111,7 @@ public class FileParserUtils {
     /**
      * Returns the list of all algorithms to be examined in the directory "algorithms".
      *
-     * @return File[] file [ ]
+     * @return file [ ]
      */
     public static File[] retrieveAlgorithmsToExaminedList() {
         File directoryPath = new File(retrieveAlgorithmsPath());
@@ -122,7 +122,7 @@ public class FileParserUtils {
      * Returns the method containing the program's recursive algorithm.
      *
      * @param file the file
-     * @return MethodDeclaration method declaration
+     * @return method declaration
      * @throws ErrorException the error exception
      */
     public static MethodDeclaration retrieveCompilationUnitRecursiveMethod(File file) throws ErrorException {
@@ -135,7 +135,7 @@ public class FileParserUtils {
     /**
      * Returns the absolute path of the project.
      *
-     * @return String
+     * @return string
      */
     private static String retrieveRootPathProject() {
         return Paths.get("").toAbsolutePath().toString().split("target")[0];
@@ -144,7 +144,7 @@ public class FileParserUtils {
     /**
      * Returns the path of the folder related to the algorithms made available by the program.
      *
-     * @return String
+     * @return string
      */
     private static String retrieveAlgorithmsPath() {
         return retrieveRootPathProject().concat("algorithms");
@@ -153,8 +153,8 @@ public class FileParserUtils {
     /**
      * Adds all files found in the folder to the list
      *
-     * @param list
-     * @param folder
+     * @param list the list
+     * @param folder the folder
      */
     private static void listFilesForFolder(List<File> list, final File folder) {
         for (final File fileEntry : folder.listFiles()) {
@@ -169,8 +169,8 @@ public class FileParserUtils {
     /**
      * Returns the extension of the file passed as input.
      *
-     * @param file
-     * @return String
+     * @param file the file
+     * @return string
      */
     private static String retrieveExtensionFilename(File file) {
         return FilenameUtils.getExtension(file.getName());
@@ -179,7 +179,7 @@ public class FileParserUtils {
     /**
      * Returns a list containing the user files to be analyzed.
      *
-     * @return the list
+     * @return list
      */
     public static List<File> retrieveUserFilesList() {
         List<File> list = new ArrayList<>();
@@ -194,7 +194,7 @@ public class FileParserUtils {
      * Returns the path of the folder whose name is passed as input.
      *
      * @param folderName the folder name
-     * @return String string
+     * @return string
      */
     public static String retrieveUserFolderPath(String folderName) {
         return retrieveRootPathProject().concat(folderName);

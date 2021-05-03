@@ -26,7 +26,7 @@ public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
      * It takes the file containing only the recursive version of the algorithm to be compared with the user's one.
      *
      * @param files the files
-     * @return File file
+     * @return file
      * @throws ErrorException the error exception
      */
     public static File retrieveRecursiveFile(List<File> files) throws ErrorException {
@@ -37,7 +37,7 @@ public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
      * Returns the recursive method call that is found within the body of the method passed in, null otherwise.
      *
      * @param methodDeclaration the method declaration
-     * @return MethodCallExpr recursive method call
+     * @return recursive method call
      */
     public static MethodCallExpr getRecursiveMethodCall(MethodDeclaration methodDeclaration) {
         List<MethodCallExpr> listMethodCall = methodDeclaration.findAll(MethodCallExpr.class);
@@ -77,9 +77,9 @@ public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
     /**
      * Checks the list of local variable declarations whose names match those of the arguments passed in the method call.
      *
-     * @param methodVariables
-     * @param argument
-     * @return List<VariableDeclarationExpr>
+     * @param methodVariables the method variables
+     * @param argument the argument
+     * @return list
      */
     private static List<VariableDeclarationExpr> retrieveMethodArgumentsList(List<VariableDeclarationExpr> methodVariables, String argument) {
         return CollectionUtils.emptyIfNull(methodVariables)
@@ -92,10 +92,10 @@ public abstract class AnalysisRecursiveMethod extends AnalysisMethod {
      * Returns the type of the arguments to the method call, doing a name search between the current argument
      * and the local variables or formal parameters (in case you don't match the former).
      *
-     * @param arguments
-     * @param methodDeclaration
-     * @param parametersType
-     * @return List
+     * @param arguments the arguments
+     * @param methodDeclaration the method declaration
+     * @param parametersType the parameters type
+     * @return list
      */
     private static List retrieveArgumentsType(NodeList arguments, MethodDeclaration methodDeclaration, List parametersType) {
         List argumentsType = new ArrayList();

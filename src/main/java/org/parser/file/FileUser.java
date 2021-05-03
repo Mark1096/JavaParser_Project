@@ -34,7 +34,7 @@ public class FileUser {
     /**
      * Returns the CompilationUnit instance of the user file.
      *
-     * @return CompilationUnit user compilation unit
+     * @return user compilation unit
      */
     public CompilationUnit getUserCompilationUnit() {
         return cu;
@@ -43,7 +43,7 @@ public class FileUser {
     /**
      * Returns the instance of File.
      *
-     * @return File file
+     * @return file
      */
     public File getFile() {
         return file;
