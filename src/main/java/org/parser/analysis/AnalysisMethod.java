@@ -49,7 +49,7 @@ public abstract class AnalysisMethod {
     protected abstract boolean checkStatementList(MethodDeclaration user, MethodDeclaration recursive) throws ErrorException;
 
     /**
-     * Restituisce un'espressione dalla conversione della stringa in input.
+     * Returns an expression from the conversion of the input string.
      *
      * @param argument the argument
      * @return expression
