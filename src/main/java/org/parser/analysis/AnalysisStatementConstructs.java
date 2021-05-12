@@ -41,6 +41,7 @@ public class AnalysisStatementConstructs {
         return Arrays.asList(
                 new CreatorIfConstruct(),
                 new CreatorWhileConstruct(),
+                new CreatorDoWhileConstruct(),
                 new CreatorForConstruct(),
                 new CreatorForEachConstruct(),
                 new CreatorSwitchConstruct()
