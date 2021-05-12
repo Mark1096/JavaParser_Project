@@ -32,7 +32,7 @@ public class App {
     public static void main(String[] args) throws Exception {
 
         for (File userFile : retrieveUserFilesList()) {
-            List<MethodDeclaration> listUserRecursiveMethods = FileParserUtils.getRecursiveUserMethodList(userFile);
+            List<MethodDeclaration> listUserRecursiveMethods = getRecursiveUserMethodList(userFile);
             File[] algorithmList = retrieveAlgorithmsToExaminedList();
 
             for (MethodDeclaration userMethod : listUserRecursiveMethods) {

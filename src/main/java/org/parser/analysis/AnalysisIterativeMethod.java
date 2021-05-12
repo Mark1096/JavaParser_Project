@@ -9,7 +9,6 @@ import org.parser.error.ErrorCode;
 import org.parser.error.ErrorException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.List;
 
 import static org.parser.error.ErrorCode.generateErrorException;
